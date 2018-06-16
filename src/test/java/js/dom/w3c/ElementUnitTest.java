@@ -25,7 +25,7 @@ public class ElementUnitTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		doc = builder().loadHTML(new File("fixture/dom/page-simple.html"));
+		doc = builder().loadHTML(new File("fixture/page-simple.html"));
 		document = Classes.getFieldValue(doc, "doc");
 	}
 
@@ -84,7 +84,7 @@ public class ElementUnitTest extends TestCase {
 		assertEquals("DIV", element.getTagName());
 		assertEquals("division description", element.getAttribute("title"));
 
-		foreignDoc = builder().loadXMLNS(new File("fixture/dom/document-utf.xml"));
+		foreignDoc = builder().loadXMLNS(new File("fixture/document-utf.xml"));
 		Element foreignH1 = foreignDoc.getByTag("h1");
 		Element foreignH2 = foreignDoc.getByTag("h2");
 		Element foreignH3 = foreignDoc.getByTag("h3");
@@ -179,7 +179,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testGetByTag() throws FileNotFoundException {
-		Document doc = builder().loadXML(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 
 		Element el = doc.getRoot().getByTag("el");
 		assertNotNull(el);
@@ -199,7 +199,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testGetByTagNS() throws FileNotFoundException {
-		Document doc = builder().loadXMLNS(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
 		Element root = doc.getRoot();
 
 		Element el = root.getByTag("el");
@@ -230,7 +230,7 @@ public class ElementUnitTest extends TestCase {
 	 * found but elements with name spaces are not.
 	 */
 	public void testGetByTagNoNS() throws FileNotFoundException {
-		Document doc = builder().loadXML(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 		Element root = doc.getRoot();
 
 		Element el = root.getByTag("el");
@@ -243,7 +243,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testFindByTag() throws FileNotFoundException {
-		Document doc = builder().loadXML(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 		Element root = doc.getRoot();
 
 		EList elist = root.findByTag("el");
@@ -267,7 +267,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testFindByTagNS() throws FileNotFoundException {
-		Document doc = builder().loadXMLNS(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
 		Element root = doc.getRoot();
 
 		EList elist = root.findByTag("el");
@@ -316,7 +316,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testGetByAttr() throws FileNotFoundException {
-		Document doc = builder().loadXML(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 		Element root = doc.getRoot();
 
 		Element el = root.getByAttr("attr");
@@ -333,7 +333,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testFindByAttr() throws FileNotFoundException {
-		Document doc = builder().loadXML(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 		Element root = doc.getRoot();
 
 		EList elist = root.findByAttr("attr");
@@ -493,14 +493,14 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testGetAttr() throws FileNotFoundException {
-		Document doc = builder().loadXML(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 		Element el = doc.getRoot().getByTag("el");
 		assertEquals("value", el.getAttr("attr"));
 		assertNull(el.getAttr("fake-attr"));
 	}
 
 	public void testGetAttrNS() throws FileNotFoundException {
-		Document doc = builder().loadXMLNS(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
 		Element el = doc.getRoot().getByTagNS(NS1, "el");
 		assertNotNull("Missing element with namespace.", el);
 
@@ -552,7 +552,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testRemoveAttr() throws FileNotFoundException {
-		Document doc = builder().loadXML(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 		Element el = doc.getByTag("el");
 		assertTrue(el.hasAttr("attr"));
 		el.removeAttr("attr");
@@ -560,7 +560,7 @@ public class ElementUnitTest extends TestCase {
 	}
 
 	public void testRemoveAttrNS() throws FileNotFoundException {
-		Document doc = builder().loadXMLNS(new File("fixture/dom/document-ns.xml"));
+		Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
 		Element el = doc.getByTagNS(NS1, "el");
 
 		assertTrue(el.hasAttr("attr"));
@@ -582,13 +582,13 @@ public class ElementUnitTest extends TestCase {
 		h3.removeCssClass("inner");
 		assertEquals("header chapter", h3.getAttr("class"));
 
-		doc = builder().loadHTML(new File("fixture/dom/page-simple.html"));
+		doc = builder().loadHTML(new File("fixture/page-simple.html"));
 		h3 = doc.getByTag("h3");
 		assertTrue(h3.hasCssClass("header"));
 		h3.removeCssClass("header");
 		assertEquals("inner chapter", h3.getAttr("class"));
 
-		doc = builder().loadHTML(new File("fixture/dom/page-simple.html"));
+		doc = builder().loadHTML(new File("fixture/page-simple.html"));
 		h3 = doc.getByTag("h3");
 		assertTrue(h3.hasCssClass("chapter"));
 		h3.removeCssClass("chapter");

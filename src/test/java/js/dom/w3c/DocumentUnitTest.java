@@ -390,6 +390,6 @@ public class DocumentUnitTest extends TestCase {
 	}
 
 	private File getFile(String resource) {
-		return new File("fixture/dom/" + resource);
+		return new File("fixture/" + resource);
 	}
 }

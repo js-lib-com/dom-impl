@@ -119,6 +119,6 @@ public class SerializerUnitTest extends TestCase {
 	}
 
 	private static File file(String path) {
-		return new File("fixture/dom/" + path);
+		return new File("fixture/" + path);
 	}
 }

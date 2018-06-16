@@ -1,6 +1,7 @@
 package js.dom.w3c;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
@@ -15,14 +16,14 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import js.dom.Document;
-import js.util.Classes;
-import junit.framework.TestCase;
-
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
+
+import js.dom.Document;
+import js.util.Classes;
+import junit.framework.TestCase;
 
 public class SerializerBenchmark extends TestCase {
 	private static final int TEST_COUNT = 10000;
@@ -33,7 +34,7 @@ public class SerializerBenchmark extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		this.doc = new DocumentBuilderImpl().loadHTML(getClass().getResourceAsStream("bench-probe.html"));
+		this.doc = new DocumentBuilderImpl().loadHTML(new File("fixture/bench-probe.html"));
 		this.document = Classes.getFieldValue(this.doc, "doc");
 		this.writer = new MockWriter();
 	}

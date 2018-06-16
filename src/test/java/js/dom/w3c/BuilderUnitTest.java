@@ -194,11 +194,11 @@ public class BuilderUnitTest extends TestCase {
 	}
 
 	private InputStream getStream(String resource) throws FileNotFoundException {
-		return new FileInputStream(new File("fixture/dom/" + resource));
+		return new FileInputStream(new File("fixture/" + resource));
 	}
 
 	private File getFile(String resource) {
-		return new File("fixture/dom/" + resource);
+		return new File("fixture/" + resource);
 	}
 
 	private Schema getSchema() throws SAXException {

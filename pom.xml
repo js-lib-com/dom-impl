@@ -60,9 +60,9 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>nekohtml</groupId>
-			<artifactId>nekohtml</artifactId>
-			<version>1.9.6.2</version>
+			<groupId>js-lib</groupId>
+			<artifactId>js-commons</artifactId>
+			<version>1.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>js-lib</groupId>
@@ -70,15 +70,15 @@
 			<version>1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>js-lib</groupId>
-			<artifactId>js-commons</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+			<version>1.9.6.2</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -19,6 +19,7 @@ import js.log.LogFactory;
 import js.util.Params;
 import js.util.Strings;
 
+import org.apache.html.dom.HTMLDocumentImpl;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -48,7 +49,7 @@ final class DocumentImpl implements Document {
 
 	@Override
 	public boolean isXML() {
-		return doc.getDoctype() == null;
+		return !(doc instanceof HTMLDocumentImpl);
 	}
 
 	/**

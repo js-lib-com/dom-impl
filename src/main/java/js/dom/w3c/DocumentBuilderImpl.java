@@ -22,6 +22,7 @@ import javax.xml.validation.Schema;
 
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.cyberneko.html.parsers.DOMParser;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -55,6 +56,12 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   private static final String FEAT_SCHEMA_VALIDATION = "http://apache.org/xml/features/validation/schema";
   /** XML parser feature for DOCTYPE disable. */
   private static final String FEAT_DOCTYPE_DECL = "http://apache.org/xml/features/disallow-doctype-decl";
+
+  @Override
+  public EntityResolver getDefaultEntityResolver()
+  {
+    return new EntityResolverImpl();
+  }
 
   // ----------------------------------------------------
   // create empty XML document

@@ -227,6 +227,12 @@ public class BuilderUnitTest
     assertIsoDocument(builder().loadHTML(getStream("page-iso.html")));
   }
 
+  @Test
+  public void loadHTML_TextWithApostrophe() throws FileNotFoundException
+  {
+    assertUtfDocument(builder().loadHTML(getStream("page-apostrophe.html")));
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void loadHTML_NullStream() throws FileNotFoundException
   {
@@ -307,6 +313,8 @@ public class BuilderUnitTest
 
   private void assertUtfDocument(Document document)
   {
+    document.dump();
+    
     TestCase.assertNotNull(document);
     org.w3c.dom.Document doc = Classes.getFieldValue(document, "doc");
     TestCase.assertNotNull(doc);

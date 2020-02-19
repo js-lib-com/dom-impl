@@ -463,14 +463,30 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   public Document loadHTML(URL url)
   {
     notNull(url, "Source URL");
-    return loadHTML(url, false);
+    return loadHTML(url, "UTF-8", false);
+  }
+
+  @Override
+  public Document loadHTML(URL url, String encoding) throws IllegalArgumentException
+  {
+    notNull(url, "Source URL");
+    notNullOrEmpty(encoding, "Character encoding");
+    return loadHTML(url, encoding, false);
   }
 
   @Override
   public Document loadHTMLNS(URL url)
   {
     notNull(url, "Source URL");
-    return loadHTML(url, true);
+    return loadHTML(url, "UTF-8", true);
+  }
+
+  @Override
+  public Document loadHTMLNS(URL url, String encoding) throws IllegalArgumentException
+  {
+    notNull(url, "Source URL");
+    notNullOrEmpty(encoding, "Character encoding");
+    return loadHTML(url, encoding, true);
   }
 
   /**
@@ -480,12 +496,14 @@ public final class DocumentBuilderImpl implements DocumentBuilder
    * @param useNamespace flag true if loaded document instance should have name space support.
    * @return newly created and loaded document instance.
    */
-  private static Document loadHTML(URL url, boolean useNamespace)
+  private static Document loadHTML(URL url, String encoding, boolean useNamespace)
   {
     InputStream stream = null;
     try {
       stream = url.openConnection().getInputStream();
-      return loadHTML(new InputSource(stream), useNamespace);
+      InputSource source = new InputSource(stream);
+      source.setEncoding(encoding);
+      return loadHTML(source, useNamespace);
     }
     catch(Exception e) {
       throw new DomException(e);

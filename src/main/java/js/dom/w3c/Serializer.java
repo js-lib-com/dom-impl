@@ -125,7 +125,7 @@ final class Serializer {
 				}
 			}
 
-			boolean emptyTag = HTML.EMPTY_TAGS.contains(tag);
+			boolean emptyTag = HTML.EMPTY_TAGS.contains(tag.toLowerCase());
 			if (emptyTag) {
 				writer.write(' ');
 				writer.write('/');
@@ -134,7 +134,7 @@ final class Serializer {
 			if (emptyTag)
 				return;
 
-			noescape = HTML.RAW_TAGS.contains(tag);
+			noescape = HTML.RAW_TAGS.contains(tag.toLowerCase());
 			NodeList children = n.getChildNodes();
 			for (int i = 0; i < children.getLength(); i++) {
 				write(children.item(i));

@@ -8,58 +8,76 @@ import js.util.Strings;
  * 
  * @author Iulian Rotaru
  */
-final class AttrImpl implements Attr {
-	private final String name;
-	private final String value;
+final class AttrImpl implements Attr
+{
+  private final String namespaceURI;
+  private final String name;
+  private final String value;
 
-	public AttrImpl(String name, String value) {
-		this.name = name;
-		this.value = value;
-	}
+  public AttrImpl(String name, String value)
+  {
+    this.namespaceURI = null;
+    this.name = name;
+    this.value = value;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  public AttrImpl(String namespaceURI, String name, String value)
+  {
+    this.namespaceURI = namespaceURI;
+    this.name = name;
+    this.value = value;
+  }
 
-	@Override
-	public String getValue() {
-		return value;
-	}
+  @Override
+  public String getNamespaceURI()
+  {
+    return namespaceURI;
+  }
 
-	@Override
-	public String toString() {
-		return Strings.toString(name, value);
-	}
+  @Override
+  public String getName()
+  {
+    return name;
+  }
 
-	/**
-	 * Cache hash code for this immutable instance.
-	 */
-	private int hash;
+  @Override
+  public String getValue()
+  {
+    return value;
+  }
 
-	@Override
-	public int hashCode() {
-		if (hash == 0) {
-			final int prime = 31;
-			hash = prime + ((name == null) ? 0 : name.hashCode());
-		}
-		return hash;
-	}
+  @Override
+  public String toString()
+  {
+    return Strings.toString(name, value);
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AttrImpl other = (AttrImpl) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
+  /**
+   * Cache hash code for this immutable instance.
+   */
+  private int hash;
+
+  @Override
+  public int hashCode()
+  {
+    if(hash == 0) {
+      final int prime = 31;
+      hash = prime + ((name == null) ? 0 : name.hashCode());
+    }
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(this == obj) return true;
+    if(obj == null) return false;
+    if(getClass() != obj.getClass()) return false;
+    AttrImpl other = (AttrImpl)obj;
+    if(name == null) {
+      if(other.name != null) return false;
+    }
+    else if(!name.equals(other.name)) return false;
+    return true;
+  }
 }

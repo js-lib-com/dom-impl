@@ -227,9 +227,25 @@ public final class DocumentImpl implements Document
   @Override
   public EList findByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args)
   {
-    Params.notNull(namespaceContext, "Name space context");
+    Params.notNull(namespaceContext, "Namespace context");
     Params.notNullOrEmpty(xpath, "XPath");
     return evaluateXPathNodeListNS(doc, namespaceContext, xpath, args);
+  }
+
+  @Override
+  public EList findByXPathNS(String namespaceURI, String xpath, Object... args)
+  {
+    Params.notNullOrEmpty(namespaceURI, "Namespace URI");
+    Params.notNullOrEmpty(xpath, "XPath");
+    return evaluateXPathNodeListNS(doc, new NamespaceContext()
+    {
+      @Override
+      public String getNamespaceURI(String prefix)
+      {
+        // it is expected to be used on documents with a single namespace
+        return namespaceURI;
+      }
+    }, xpath, args);
   }
 
   @Override
@@ -259,6 +275,22 @@ public final class DocumentImpl implements Document
     Params.notNull(namespaceContext, "Namespace context");
     Params.notNullOrEmpty(xpath, "XPath");
     return evaluateXPathNodeNS(doc, namespaceContext, xpath, args);
+  }
+
+  @Override
+  public Element getByXPathNS(String namespaceURI, String xpath, Object... args)
+  {
+    Params.notNullOrEmpty(namespaceURI, "Namespace URI");
+    Params.notNullOrEmpty(xpath, "XPath");
+    return evaluateXPathNodeNS(doc, new NamespaceContext()
+    {
+      @Override
+      public String getNamespaceURI(String prefix)
+      {
+        // it is expected to be used on documents with a single namespace
+        return namespaceURI;
+      }
+    }, xpath, args);
   }
 
   @Override
@@ -361,10 +393,10 @@ public final class DocumentImpl implements Document
   }
 
   /**
-   * Name space aware variant for {@link #evaluateXPathNode(Node, String, Object...)}.
+   * Namespace aware variant for {@link #evaluateXPathNode(Node, String, Object...)}.
    * 
    * @param contextNode evaluation context node,
-   * @param namespaceContext name space context maps prefixes to name space URIs,
+   * @param namespaceContext namespace context maps prefixes to namespace URIs,
    * @param expression XPath expression, formatting tags supported,
    * @param args optional formatting arguments.
    * @return evaluation result as element, possible null.
@@ -415,10 +447,10 @@ public final class DocumentImpl implements Document
   }
 
   /**
-   * Name space aware variant of {@link #evaluateXPathNodeList(Node, String, Object...)}.
+   * Namespace aware variant of {@link #evaluateXPathNodeList(Node, String, Object...)}.
    * 
    * @param contextNode evaluation context node,
-   * @param namespaceContext name space context maps prefixes to name space URIs,
+   * @param namespaceContext namespace context maps prefixes to namespace URIs,
    * @param expression XPath expression with optional formatting tags,
    * @param args optional formatting arguments.
    * @return list of result elements, possible empty.

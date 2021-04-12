@@ -263,25 +263,53 @@ public class DocumentUnitTest extends TestCase {
 		assertNull(el);
 	}
 
-	public void testGetByXPathNS() throws FileNotFoundException {
-		Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+    public void testGetByXPathNS() throws FileNotFoundException {
+        Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
 
-		Element el = doc.getByXPath("//el");
-		assertNotNull(el);
-		assertEquals("element", el.getText());
+        Element el = doc.getByXPath("//el");
+        assertNotNull(el);
+        assertEquals("element", el.getText());
 
-		el = doc.getByXPathNS(new NamespaceContext() {
-			@Override
-			public String getNamespaceURI(String prefix) {
-				if (prefix.equals("ns1")) {
-					return NS1;
-				}
-				return null;
-			}
-		}, "//ns1:el");
-		assertNotNull(el);
-		assertEquals("ns1.element", el.getText());
-	}
+        el = doc.getByXPathNS(new NamespaceContext() {
+            @Override
+            public String getNamespaceURI(String prefix) {
+                if (prefix.equals("ns1")) {
+                    return NS1;
+                }
+                return null;
+            }
+        }, "//ns1:el");
+        assertNotNull(el);
+        assertEquals("ns1.element", el.getText());
+    }
+
+    public void testGetByXPathNS_NamespaceURI() throws FileNotFoundException {
+        Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+
+        Element el = doc.getByXPath("//el");
+        assertNotNull(el);
+        assertEquals("element", el.getText());
+
+        el = doc.getByXPathNS(NS1, "//ns1:el");
+        assertNotNull(el);
+        assertEquals("ns1.element", el.getText());
+    }
+
+    public void testGetByXPathNS_NamespaceURI_Attr() throws FileNotFoundException {
+        Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+
+        Element el = doc.getByXPath("//*[@attr]");
+        assertNotNull(el);
+        assertEquals("element", el.getText());
+
+        el = doc.getByXPathNS(NS1, "//*[@ns1:attr]");
+        assertNotNull(el);
+        assertEquals("ns1.element", el.getText());
+
+        el = doc.getByXPathNS(NS1, "//*[@fake:attr]");
+        assertNotNull(el);
+        assertEquals("ns1.element", el.getText());
+    }
 
 	public void testFindByXPath() throws FileNotFoundException {
 		Document doc = builder().loadHTML(getFile("page-simple.html"));

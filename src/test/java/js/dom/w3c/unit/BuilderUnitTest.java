@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.xml.XMLConstants;
@@ -79,7 +78,7 @@ public class BuilderUnitTest
   }
 
   @Test
-  public void parseXml_UTF8()
+  public void parseXml_UTF8() throws SAXException
   {
     String string = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + //
         "<body>" + //
@@ -92,13 +91,13 @@ public class BuilderUnitTest
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseXML_EmptyString()
+  public void parseXML_EmptyString() throws SAXException
   {
     builder().parseXML("");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseXML_NullString()
+  public void parseXML_NullString() throws SAXException
   {
     builder().parseXML(null);
   }
@@ -111,92 +110,92 @@ public class BuilderUnitTest
   }
 
   @Test
-  public void loadXML_IsoFile() throws FileNotFoundException, SAXException
+  public void loadXML_IsoFile() throws SAXException, IOException
   {
     File file = getFile("document-iso.xml");
     assertIsoDocument(builder().loadXML(file));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void loadXML_NullFile() throws FileNotFoundException
+  public void loadXML_NullFile() throws IOException, SAXException
   {
     builder().loadXML((File)null);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void loadXML_NotFile() throws FileNotFoundException
+  public void loadXML_NotFile() throws IOException, SAXException
   {
     builder().loadXML(new File("."));
   }
 
   @Test
-  public void loadXML_UtfStream() throws FileNotFoundException
+  public void loadXML_UtfStream() throws IOException, SAXException
   {
     assertUtfDocument(builder().loadXML(getStream("document-utf.xml")));
   }
 
   @Test
-  public void loadXML_IsoStream() throws FileNotFoundException
+  public void loadXML_IsoStream() throws IOException, SAXException
   {
     assertIsoDocument(builder().loadXML(getStream("document-iso.xml")));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void loadXML_NullStream()
+  public void loadXML_NullStream() throws IOException, SAXException
   {
     builder().loadXML((InputStream)null);
   }
 
   @Test
-  public void loadXML_UtfSource() throws FileNotFoundException
+  public void loadXML_UtfSource() throws IOException, SAXException
   {
     assertUtfDocument(builder().loadXML(getFile("document-utf.xml")));
   }
 
   @Test
-  public void loadXML_IsoSource() throws FileNotFoundException
+  public void loadXML_IsoSource() throws IOException, SAXException
   {
     assertIsoDocument(builder().loadXML(getFile("document-iso.xml")));
   }
 
-  public void loadXML_UtfFromURL() throws MalformedURLException
+  public void loadXML_UtfFromURL() throws IOException, SAXException
   {
     URL url = new URL("http://test.bbnet.ro/utf.xml");
     assertUtfDocument(builder().loadXML(url));
   }
 
-  public void parseXML_IsoURL() throws MalformedURLException
+  public void parseXML_IsoURL() throws IOException, SAXException
   {
     URL url = new URL("http://test.bbnet.ro/iso.xml");
     assertIsoDocument(builder().loadXML(url));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseXML_NullURL()
+  public void parseXML_NullURL() throws IOException, SAXException
   {
     builder().loadXML((URL)null);
   }
 
   @Test
-  public void loadHTML_UtfFile() throws FileNotFoundException
+  public void loadHTML_UtfFile() throws IOException, SAXException
   {
     assertUtfDocument(builder().loadHTML(getFile("page-utf.html")));
   }
 
   @Test
-  public void loadHTML_IsoFile() throws FileNotFoundException
+  public void loadHTML_IsoFile() throws IOException, SAXException
   {
     assertIsoDocument(builder().loadHTML(getFile("page-iso.html")));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void loadHTML_NullFile() throws FileNotFoundException
+  public void loadHTML_NullFile() throws IOException, SAXException
   {
     builder().loadHTML((File)null);
   }
 
   @Test
-  public void parserDetection() throws IOException
+  public void parserDetection() throws IOException, SAXException
   {
     final int READ_AHEAD_SIZE = 20;
 
@@ -217,43 +216,43 @@ public class BuilderUnitTest
   }
 
   @Test
-  public void loadHTML_UtfStream() throws FileNotFoundException
+  public void loadHTML_UtfStream() throws IOException, SAXException
   {
     assertUtfDocument(builder().loadHTML(getStream("page-utf.html")));
   }
 
   @Test
-  public void loadHTML_IsoStream() throws FileNotFoundException
+  public void loadHTML_IsoStream() throws IOException, SAXException
   {
     assertIsoDocument(builder().loadHTML(getStream("page-iso.html")));
   }
 
   @Test
-  public void loadHTML_TextWithApostrophe() throws FileNotFoundException
+  public void loadHTML_TextWithApostrophe() throws IOException, SAXException
   {
     assertUtfDocument(builder().loadHTML(getStream("page-apostrophe.html")));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void loadHTML_NullStream() throws FileNotFoundException
+  public void loadHTML_NullStream() throws IOException, SAXException
   {
     builder().loadHTML((InputStream)null);
   }
 
   @Test
-  public void loadHTML_UtfSource() throws FileNotFoundException
+  public void loadHTML_UtfSource() throws IOException, SAXException
   {
     assertUtfDocument(builder().loadHTML(getFile("page-utf.html")));
   }
 
   @Test
-  public void loadHTML_IsoSource() throws FileNotFoundException
+  public void loadHTML_IsoSource() throws IOException, SAXException
   {
     assertIsoDocument(builder().loadHTML(getFile("page-iso.html")));
   }
 
   @Test
-  public void loadHTML5_File() throws FileNotFoundException
+  public void loadHTML5_File() throws IOException, SAXException
   {
     Document doc = builder().loadHTML(getFile("page-html5.html"));
     assertEquals("Current Value in €", doc.getByTag("h1").getText());
@@ -262,7 +261,7 @@ public class BuilderUnitTest
   }
 
   @Test
-  public void parseHTML5_String() throws IOException
+  public void parseHTML5_String() throws IOException, SAXException
   {
     String html5 = Strings.load(getFile("page-html5.html"));
     Document doc = builder().parseHTML(html5);
@@ -272,35 +271,35 @@ public class BuilderUnitTest
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseHTML5_NullString()
+  public void parseHTML5_NullString() throws SAXException
   {
     builder().parseHTML((String)null);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseHTML5_EmptyString()
+  public void parseHTML5_EmptyString() throws SAXException
   {
     builder().parseHTML("");
   }
 
-  public void loadHTML_UtfURL() throws MalformedURLException
+  public void loadHTML_UtfURL() throws IOException, SAXException
   {
     assertUtfDocument(builder().loadHTML(new URL("http://test.bbnet.ro/utf.html")));
   }
 
-  public void loadHTML_IsoURL() throws MalformedURLException
+  public void loadHTML_IsoURL() throws IOException, SAXException
   {
     assertIsoDocument(builder().loadHTML(new URL("http://test.bbnet.ro/iso.html")));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void loadHTML_NullURL()
+  public void loadHTML_NullURL() throws IOException, SAXException
   {
     assertIsoDocument(builder().loadHTML((URL)null));
   }
 
   @Test
-  public void localLoadedDTD() throws FileNotFoundException
+  public void localLoadedDTD() throws IOException, SAXException
   {
     builder().loadXML(getStream("web.xml"));
   }
@@ -314,8 +313,6 @@ public class BuilderUnitTest
 
   private void assertUtfDocument(Document document)
   {
-    document.dump();
-    
     TestCase.assertNotNull(document);
     org.w3c.dom.Document doc = Classes.getFieldValue(document, "doc");
     TestCase.assertNotNull(doc);

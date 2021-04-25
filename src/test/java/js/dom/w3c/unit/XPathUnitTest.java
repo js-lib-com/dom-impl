@@ -1,5 +1,9 @@
 package js.dom.w3c.unit;
 
+import javax.xml.xpath.XPathException;
+
+import org.xml.sax.SAXException;
+
 import js.dom.Document;
 import js.dom.DocumentBuilder;
 import js.dom.EList;
@@ -12,7 +16,7 @@ public class XPathUnitTest extends TestCase
 {
   private Document doc;
 
-  public void testElement()
+  public void testElement() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<root id='1'>" + //
@@ -45,12 +49,12 @@ public class XPathUnitTest extends TestCase
     assertNotNull(nephew);
   }
 
-  private void assertElement(String xpath, int expectedId)
+  private void assertElement(String xpath, int expectedId) throws XPathException
   {
     assertEquals(expectedId, Integer.parseInt(doc.getByXPath(xpath).getAttr("id")));
   }
 
-  public void testEList()
+  public void testEList() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<bloodline id='1'>" + //
@@ -112,12 +116,12 @@ public class XPathUnitTest extends TestCase
     assertEList(root, "descendant::child", 2, 4);
   }
 
-  private static void assertEList(Element el, String xpath, int... expectedIds)
+  private static void assertEList(Element el, String xpath, int... expectedIds) throws XPathException
   {
     assertEList(el.findByXPath(xpath), expectedIds);
   }
 
-  private static void assertEList(Document doc, String xpath, int... expectedIds)
+  private static void assertEList(Document doc, String xpath, int... expectedIds) throws XPathException
   {
     assertEList(doc.findByXPath(xpath), expectedIds);
   }
@@ -130,7 +134,7 @@ public class XPathUnitTest extends TestCase
     }
   }
 
-  public void testGetChildNS()
+  public void testGetChildNS() throws SAXException, XPathException
   {
     final String NS1 = "js-lib.com/ns1";
     final String NS2 = "js-lib.com/ns2";
@@ -169,7 +173,7 @@ public class XPathUnitTest extends TestCase
     assertNotNull(el);
   }
 
-  public void testChildWithAttribute()
+  public void testChildWithAttribute() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<root>" + //
@@ -199,7 +203,7 @@ public class XPathUnitTest extends TestCase
     assertNull(doc.getByXPath("//child[@name='paris']"));
   }
 
-  public void testChildWithAttributeNS()
+  public void testChildWithAttributeNS() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<root xmlns:ns='js-lib.com/ns'>" + //
@@ -229,7 +233,7 @@ public class XPathUnitTest extends TestCase
     assertEquals("heracle", elist.item(1).getText());
   }
 
-  public void testXpathCaseSensitiveOnHTML()
+  public void testXpathCaseSensitiveOnHTML() throws SAXException, XPathException
   {
     String html = "" + //
         "<BODY>" + //
@@ -246,7 +250,7 @@ public class XPathUnitTest extends TestCase
     assertNull(doc.getByXPath("//h1[@title='title']"));
   }
 
-  public void testDescendantWithAttribute()
+  public void testDescendantWithAttribute() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<root>" + //
@@ -269,7 +273,7 @@ public class XPathUnitTest extends TestCase
     assertEquals("heracle", elist.item(1).getText());
   }
 
-  public void testChildPosition()
+  public void testChildPosition() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<parent>" + //
@@ -292,7 +296,7 @@ public class XPathUnitTest extends TestCase
     assertEquals("z", parent.getByXPath("child[last()]").getText());
   }
 
-  public void testImgOrInputWithSrc()
+  public void testImgOrInputWithSrc() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<parent>" + //
@@ -309,7 +313,7 @@ public class XPathUnitTest extends TestCase
     assertEquals("button.png", elist.item(1).getAttr("src"));
   }
 
-  public void testAttributeContainingEditable()
+  public void testAttributeContainingEditable() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<parent>" + //
@@ -321,7 +325,7 @@ public class XPathUnitTest extends TestCase
     assertEquals(0, elist.size());
   }
 
-  public void testAttributeContainingEditableNS()
+  public void testAttributeContainingEditableNS() throws SAXException, XPathException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<parent xmlns:ns='js-lib.com/ns'>" + //
@@ -340,7 +344,7 @@ public class XPathUnitTest extends TestCase
         return super.getNamespaceURI(prefix);
       }
     }, "//*[@ns:editable]");
-    
+
     assertEquals(0, elist.size());
   }
 

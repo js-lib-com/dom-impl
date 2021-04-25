@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -84,26 +83,20 @@ public final class DocumentBuilderImpl implements DocumentBuilder
    * @param root name of the root element,
    * @param useNamespace flag to control name space awareness.
    * @return newly create document.
-   * @throws IllegalArgumentException if <code>root</code> argument is null or empty.
    */
-  private static Document createXML(String root, boolean useNamespace) throws IllegalArgumentException
+  private static Document createXML(String root, boolean useNamespace)
   {
     notNullOrEmpty(root, "Root element");
-    try {
-      org.w3c.dom.Document doc = getDocumentBuilder(null, useNamespace).newDocument();
-      doc.appendChild(doc.createElement(root));
-      return new DocumentImpl(doc);
-    }
-    catch(Exception e) {
-      throw new DomException(e);
-    }
+    org.w3c.dom.Document doc = getDocumentBuilder(null, useNamespace).newDocument();
+    doc.appendChild(doc.createElement(root));
+    return new DocumentImpl(doc);
   }
 
   // ----------------------------------------------------
   // parse XML document from string source
 
   @Override
-  public Document parseXML(String string)
+  public Document parseXML(String string) throws SAXException
   {
     notNullOrEmpty(string, "Source string");
     try {
@@ -112,10 +105,13 @@ public final class DocumentBuilderImpl implements DocumentBuilder
     catch(UnsupportedEncodingException e) {
       throw new BugError("JVM with missing support for UTF-8.");
     }
+    catch(IOException e) {
+      throw new BugError("IO exception while reading string.");
+    }
   }
 
   @Override
-  public Document parseXMLNS(String string)
+  public Document parseXMLNS(String string) throws SAXException
   {
     notNullOrEmpty(string, "Source string");
     try {
@@ -124,13 +120,16 @@ public final class DocumentBuilderImpl implements DocumentBuilder
     catch(UnsupportedEncodingException e) {
       throw new BugError("JVM with missing support for UTF-8.");
     }
+    catch(IOException e) {
+      throw new BugError("IO exception while reading string.");
+    }
   }
 
   // ----------------------------------------------------
   // load XML document from file
 
   @Override
-  public Document loadXML(File file) throws FileNotFoundException
+  public Document loadXML(File file) throws IOException, SAXException
   {
     notNull(file, "Source file");
     isFalse(file.isDirectory(), "Source file parameter |%s| is a directory.", file);
@@ -138,7 +137,7 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   }
 
   @Override
-  public Document loadXMLNS(File file) throws FileNotFoundException
+  public Document loadXMLNS(File file) throws IOException, SAXException
   {
     notNull(file, "Source file");
     isFalse(file.isDirectory(), "Source file parameter |%s| is a directory.", file);
@@ -149,52 +148,38 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   // load XML document from input stream
 
   @Override
-  public Document loadXML(InputStream stream)
+  public Document loadXML(InputStream stream) throws IOException, SAXException
   {
     notNull(stream, "Input stream");
-    return loadXML(new InputSource(stream));
+    return loadXML(new InputSource(stream), false);
   }
 
   @Override
-  public Document loadXMLNS(InputStream stream)
+  public Document loadXMLNS(InputStream stream) throws IOException, SAXException
   {
     notNull(stream, "Input stream");
-    return loadXMLNS(new InputSource(stream));
+    return loadXML(new InputSource(stream), true);
   }
 
   // ----------------------------------------------------
   // load XML document from reader
 
   @Override
-  public Document loadXML(Reader reader)
+  public Document loadXML(Reader reader) throws IOException, SAXException
   {
     notNull(reader, "Source reader");
-    return loadXML(new InputSource(reader));
+    return loadXML(new InputSource(reader), false);
   }
 
   @Override
-  public Document loadXMLNS(Reader reader)
+  public Document loadXMLNS(Reader reader) throws IOException, SAXException
   {
     notNull(reader, "Source reader");
-    return loadXMLNS(new InputSource(reader));
+    return loadXML(new InputSource(reader), true);
   }
 
   // ----------------------------------------------------
   // load XML document from input source
-
-  @Override
-  public Document loadXML(InputSource source)
-  {
-    notNull(source, "Source");
-    return loadXML(source, false);
-  }
-
-  @Override
-  public Document loadXMLNS(InputSource source)
-  {
-    notNull(source, "Source");
-    return loadXML(source, true);
-  }
 
   /**
    * Helper method to load XML document from input source.
@@ -202,15 +187,14 @@ public final class DocumentBuilderImpl implements DocumentBuilder
    * @param source input source,
    * @param useNamespace flag to control name space awareness.
    * @return newly created XML document.
+   * @throws IOException input source reading fails.
+   * @throws SAXException input source content is not a valid XML document.
    */
-  private static Document loadXML(InputSource source, boolean useNamespace)
+  private static Document loadXML(InputSource source, boolean useNamespace) throws IOException, SAXException
   {
     try {
       org.w3c.dom.Document doc = getDocumentBuilder(null, useNamespace).parse(source);
       return new DocumentImpl(doc);
-    }
-    catch(Exception e) {
-      throw new DomException(e);
     }
     finally {
       close(source);
@@ -221,14 +205,14 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   // load XML document from URL
 
   @Override
-  public Document loadXML(URL url)
+  public Document loadXML(URL url) throws IOException, SAXException
   {
     notNull(url, "Source URL");
     return loadXML(url, false);
   }
 
   @Override
-  public Document loadXMLNS(URL url)
+  public Document loadXMLNS(URL url) throws IOException, SAXException
   {
     notNull(url, "Source URL");
     return loadXML(url, true);
@@ -237,20 +221,19 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   /**
    * Helper method to load XML document from URL.
    * 
-   * @param url source URL,
+   * @param url source document URL,
    * @param useNamespace flag to control name space awareness.
    * @return newly created XML document.
+   * @throws IOException if source document reading fails.
+   * @throws SAXException if source document is not valid XML.
    */
-  private Document loadXML(URL url, boolean useNamespace)
+  private Document loadXML(URL url, boolean useNamespace) throws IOException, SAXException
   {
     InputStream stream = null;
     try {
       stream = url.openConnection().getInputStream();
       InputSource source = new InputSource(stream);
-      return useNamespace ? loadXMLNS(source) : loadXML(source);
-    }
-    catch(Exception e) {
-      throw new DomException(e);
+      return loadXML(source, useNamespace);
     }
     finally {
       close(stream);
@@ -270,24 +253,34 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   // load HTML document from string source
 
   @Override
-  public Document parseHTML(String string)
+  public Document parseHTML(String string) throws SAXException
   {
     notNullOrEmpty(string, "Source string");
-    return loadHTML(new ByteArrayInputStream(string.getBytes()));
+    try {
+      return loadHTML(new ByteArrayInputStream(string.getBytes()));
+    }
+    catch(IOException e) {
+      throw new SAXException(e.getMessage());
+    }
   }
 
   @Override
-  public Document parseHTMLNS(String string)
+  public Document parseHTMLNS(String string) throws SAXException
   {
     notNullOrEmpty(string, "Source string");
-    return loadHTMLNS(new ByteArrayInputStream(string.getBytes()));
+    try {
+      return loadHTMLNS(new ByteArrayInputStream(string.getBytes()));
+    }
+    catch(IOException e) {
+      throw new SAXException(e.getMessage());
+    }
   }
 
   // ----------------------------------------------------
   // load HTML document from file
 
   @Override
-  public Document loadHTML(File file) throws FileNotFoundException
+  public Document loadHTML(File file) throws IOException, SAXException
   {
     notNull(file, "Source file");
     isFalse(file.isDirectory(), "Source file parameter |%s| is a directory.", file);
@@ -295,7 +288,7 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   }
 
   @Override
-  public Document loadHTMLNS(File file) throws FileNotFoundException
+  public Document loadHTMLNS(File file) throws IOException, SAXException
   {
     notNull(file, "Source file");
     isFalse(file.isDirectory(), "Source file parameter |%s| is a directory.", file);
@@ -303,7 +296,7 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   }
 
   @Override
-  public Document loadHTML(File file, String encoding) throws FileNotFoundException
+  public Document loadHTML(File file, String encoding) throws IOException, SAXException
   {
     notNull(file, "Source file");
     isFalse(file.isDirectory(), "Source file parameter |%s| is a directory.", file);
@@ -312,7 +305,7 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   }
 
   @Override
-  public Document loadHTMLNS(File file, String encoding) throws FileNotFoundException
+  public Document loadHTMLNS(File file, String encoding) throws IOException, SAXException
   {
     notNull(file, "Source file");
     isFalse(file.isDirectory(), "Source file parameter |%s| is a directory.", file);
@@ -324,21 +317,21 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   // load HTML document from input stream
 
   @Override
-  public Document loadHTML(InputStream stream)
+  public Document loadHTML(InputStream stream) throws IOException, SAXException
   {
     notNull(stream, "Source stream");
-    return loadHTML(new InputSource(stream));
+    return loadHTML(new InputSource(stream), "UTF-8");
   }
 
   @Override
-  public Document loadHTMLNS(InputStream stream)
+  public Document loadHTMLNS(InputStream stream) throws IOException, SAXException
   {
     notNull(stream, "Source stream");
-    return loadHTMLNS(new InputSource(stream));
+    return loadHTMLNS(new InputSource(stream), "UTF-8");
   }
 
   @Override
-  public Document loadHTML(InputStream stream, String encoding)
+  public Document loadHTML(InputStream stream, String encoding) throws IOException, SAXException
   {
     notNull(stream, "Source stream");
     notNullOrEmpty(encoding, "Characters encoding");
@@ -346,7 +339,7 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   }
 
   @Override
-  public Document loadHTMLNS(InputStream stream, String encoding)
+  public Document loadHTMLNS(InputStream stream, String encoding) throws IOException, SAXException
   {
     notNull(stream, "Source stream");
     notNullOrEmpty(encoding, "Characters encoding");
@@ -357,21 +350,21 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   // load HTML document from reader
 
   @Override
-  public Document loadHTML(Reader reader)
+  public Document loadHTML(Reader reader) throws IOException, SAXException
   {
     notNull(reader, "Source reader");
     return loadHTML(reader, Charset.defaultCharset().name());
   }
 
   @Override
-  public Document loadHTMLNS(Reader reader)
+  public Document loadHTMLNS(Reader reader) throws IOException, SAXException
   {
     notNull(reader, "Source reader");
     return loadHTMLNS(reader, Charset.defaultCharset().name());
   }
 
   @Override
-  public Document loadHTML(Reader reader, String encoding)
+  public Document loadHTML(Reader reader, String encoding) throws IOException, SAXException
   {
     notNull(reader, "Source reader");
     notNullOrEmpty(encoding, "Characters encoding");
@@ -379,7 +372,7 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   }
 
   @Override
-  public Document loadHTMLNS(Reader reader, String encoding)
+  public Document loadHTMLNS(Reader reader, String encoding) throws IOException, SAXException
   {
     notNull(reader, "Source reader");
     notNullOrEmpty(encoding, "Characters encoding");
@@ -389,22 +382,7 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   // ----------------------------------------------------
   // load HTML document from input source
 
-  @Override
-  public Document loadHTML(InputSource source)
-  {
-    notNull(source, "Source");
-    return loadHTML(source, "UTF-8");
-  }
-
-  @Override
-  public Document loadHTMLNS(InputSource source)
-  {
-    notNull(source, "Source");
-    return loadHTMLNS(source, "UTF-8");
-  }
-
-  @Override
-  public Document loadHTML(InputSource source, String encoding)
+  private static Document loadHTML(InputSource source, String encoding) throws IOException, SAXException
   {
     notNull(source, "Source");
     notNullOrEmpty(encoding, "Characters encoding");
@@ -412,16 +390,12 @@ public final class DocumentBuilderImpl implements DocumentBuilder
     try {
       return loadHTML(source, false);
     }
-    catch(Exception e) {
-      throw new DomException(e);
-    }
     finally {
       close(source);
     }
   }
 
-  @Override
-  public Document loadHTMLNS(InputSource source, String encoding)
+  private static Document loadHTMLNS(InputSource source, String encoding) throws IOException, SAXException
   {
     notNull(source, "Source");
     notNullOrEmpty(encoding, "Characters encoding");
@@ -429,24 +403,21 @@ public final class DocumentBuilderImpl implements DocumentBuilder
     try {
       return loadHTML(source, true);
     }
-    catch(Exception e) {
-      throw new DomException(e);
-    }
     finally {
       close(source);
     }
   }
 
   /**
-   * Helper for loading HTML document from input source.
+   * Utility method for loading HTML document from input source.
    * 
    * @param source input source,
    * @param useNamespace flag set to true if document should be name space aware.
    * @return newly created HTML document.
-   * @throws SAXException if input source is not valid XML,
    * @throws IOException if reading from input stream fails.
+   * @throws SAXException if input source is not valid HTML.
    */
-  private static Document loadHTML(InputSource source, boolean useNamespace) throws SAXException, IOException
+  private static Document loadHTML(InputSource source, boolean useNamespace) throws IOException, SAXException
   {
     notNull(source, "Source");
     DOMParser parser = new DOMParser();
@@ -460,14 +431,14 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   // load HTML document from URL
 
   @Override
-  public Document loadHTML(URL url)
+  public Document loadHTML(URL url) throws IOException, SAXException
   {
     notNull(url, "Source URL");
     return loadHTML(url, "UTF-8", false);
   }
 
   @Override
-  public Document loadHTML(URL url, String encoding) throws IllegalArgumentException
+  public Document loadHTML(URL url, String encoding) throws IOException, SAXException
   {
     notNull(url, "Source URL");
     notNullOrEmpty(encoding, "Character encoding");
@@ -475,14 +446,14 @@ public final class DocumentBuilderImpl implements DocumentBuilder
   }
 
   @Override
-  public Document loadHTMLNS(URL url)
+  public Document loadHTMLNS(URL url) throws IOException, SAXException
   {
     notNull(url, "Source URL");
     return loadHTML(url, "UTF-8", true);
   }
 
   @Override
-  public Document loadHTMLNS(URL url, String encoding) throws IllegalArgumentException
+  public Document loadHTMLNS(URL url, String encoding) throws IOException, SAXException
   {
     notNull(url, "Source URL");
     notNullOrEmpty(encoding, "Character encoding");
@@ -495,8 +466,10 @@ public final class DocumentBuilderImpl implements DocumentBuilder
    * @param url HTML document hyper source,
    * @param useNamespace flag true if loaded document instance should have name space support.
    * @return newly created and loaded document instance.
+   * @throws IOException
+   * @throws SAXException
    */
-  private static Document loadHTML(URL url, String encoding, boolean useNamespace)
+  private static Document loadHTML(URL url, String encoding, boolean useNamespace) throws IOException, SAXException
   {
     InputStream stream = null;
     try {
@@ -504,9 +477,6 @@ public final class DocumentBuilderImpl implements DocumentBuilder
       InputSource source = new InputSource(stream);
       source.setEncoding(encoding);
       return loadHTML(source, useNamespace);
-    }
-    catch(Exception e) {
-      throw new DomException(e);
     }
     finally {
       close(stream);
@@ -519,8 +489,9 @@ public final class DocumentBuilderImpl implements DocumentBuilder
    * Close input source.
    * 
    * @param source input source to be closed.
+   * @throws IOException if input source closing fails.
    */
-  private static void close(InputSource source)
+  private static void close(InputSource source) throws IOException
   {
     if(source != null) {
       if(source.getByteStream() != null) {
@@ -536,16 +507,12 @@ public final class DocumentBuilderImpl implements DocumentBuilder
    * Close closeable converting IO exception to unchecked DOM exception.
    * 
    * @param closeable closeable to close.
+   * @throws IOException if closing operation fails.
    */
-  private static void close(Closeable closeable)
+  private static void close(Closeable closeable) throws IOException
   {
-    try {
-      if(closeable != null) {
-        closeable.close();
-      }
-    }
-    catch(IOException e) {
-      throw new DomException(e);
+    if(closeable != null) {
+      closeable.close();
     }
   }
 
@@ -587,43 +554,50 @@ public final class DocumentBuilderImpl implements DocumentBuilder
    * @param schema XML schema,
    * @param useNamespace flag to use name space.
    * @return XML document builder.
-   * @throws ParserConfigurationException if document builder factory feature set fail.
    */
-  private static javax.xml.parsers.DocumentBuilder getDocumentBuilder(Schema schema, boolean useNamespace) throws ParserConfigurationException
+  private static javax.xml.parsers.DocumentBuilder getDocumentBuilder(Schema schema, boolean useNamespace)
   {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setIgnoringComments(true);
     dbf.setIgnoringElementContentWhitespace(true);
     dbf.setCoalescing(true);
 
-    if(schema != null) {
-      // because schema is used throws fatal error if XML document contains DOCTYPE declaration
-      dbf.setFeature(FEAT_DOCTYPE_DECL, true);
+    try {
+      if(schema != null) {
+        // because schema is used throws fatal error if XML document contains DOCTYPE declaration
+        dbf.setFeature(FEAT_DOCTYPE_DECL, true);
 
-      // excerpt from document builder factory api:
-      // Note that "the validation" here means a validating parser as defined in the XML recommendation. In other words,
-      // it essentially just controls the DTD validation.
-      // To use modern schema languages such as W3C XML Schema or RELAX NG instead of DTD, you can configure your parser
-      // to be a non-validating parser by leaving the setValidating(boolean) method false, then use the
-      // setSchema(Schema)
-      // method to associate a schema to a parser.
-      dbf.setValidating(false);
+        // excerpt from document builder factory api:
+        // Note that "the validation" here means a validating parser as defined in the XML recommendation. In other
+        // words,
+        // it essentially just controls the DTD validation.
+        // To use modern schema languages such as W3C XML Schema or RELAX NG instead of DTD, you can configure your
+        // parser
+        // to be a non-validating parser by leaving the setValidating(boolean) method false, then use the
+        // setSchema(Schema)
+        // method to associate a schema to a parser.
+        dbf.setValidating(false);
 
-      // XML schema validation requires namespace support
-      dbf.setFeature(FEAT_SCHEMA_VALIDATION, true);
-      dbf.setNamespaceAware(true);
-      dbf.setSchema(schema);
+        // XML schema validation requires namespace support
+        dbf.setFeature(FEAT_SCHEMA_VALIDATION, true);
+        dbf.setNamespaceAware(true);
+        dbf.setSchema(schema);
+      }
+      else {
+        // disable parser XML schema support; it is enabled by default
+        dbf.setFeature(FEAT_SCHEMA_VALIDATION, false);
+        dbf.setValidating(false);
+        dbf.setNamespaceAware(useNamespace);
+      }
+
+      javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
+      db.setEntityResolver(new EntityResolverImpl());
+      db.setErrorHandler(new ErrorHandlerImpl());
+      return db;
     }
-    else {
-      // disable parser XML schema support; it is enabled by default
-      dbf.setFeature(FEAT_SCHEMA_VALIDATION, false);
-      dbf.setValidating(false);
-      dbf.setNamespaceAware(useNamespace);
+    catch(ParserConfigurationException e) {
+      // document builder implementation does not support features used by this method
+      throw new BugError(e);
     }
-
-    javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
-    db.setEntityResolver(new EntityResolverImpl());
-    db.setErrorHandler(new ErrorHandlerImpl());
-    return db;
   }
 }

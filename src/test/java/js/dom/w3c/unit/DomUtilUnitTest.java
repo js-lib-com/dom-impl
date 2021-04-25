@@ -1,5 +1,7 @@
 package js.dom.w3c.unit;
 
+import org.xml.sax.SAXException;
+
 import js.dom.Document;
 import js.dom.EList;
 import js.dom.w3c.DocumentBuilderImpl;
@@ -7,7 +9,7 @@ import js.dom.w3c.DomUtil;
 import junit.framework.TestCase;
 
 public class DomUtilUnitTest extends TestCase {
-	public void testFindByNonEmptyText() {
+	public void testFindByNonEmptyText() throws SAXException {
 		String fragment = "<body>" + //
 				"<a>about</a>" + //
 				"<a>terms</a>" + //

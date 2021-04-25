@@ -1,10 +1,13 @@
 package js.dom.w3c.unit;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import javax.xml.xpath.XPathException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import js.dom.Document;
 import js.dom.DocumentBuilder;
@@ -78,7 +81,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("melon", document.getElementById("id3").getTextContent());
   }
 
-  public void testAddForeignChild() throws FileNotFoundException
+  public void testAddForeignChild() throws IOException, SAXException
   {
     Document foreignDoc = builder().createXML("root");
     Element foreignChild = foreignDoc.createElement("div", "id", "321", "title", "division description");
@@ -110,7 +113,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("\"'&<>", document.getDocumentElement().getTextContent());
   }
 
-  public void testRemoveText()
+  public void testRemoveText() throws SAXException
   {
     String xml = "<?xml version='1.0' encoding='UTF-8'?>" + //
         "<root><element0 />text0<element1 />text1<element2 />text2</root>";
@@ -193,7 +196,7 @@ public class ElementUnitTest extends TestCase
     fail("Missing attribute value should rise illegal argument exception.");
   }
 
-  public void testGetByTag() throws FileNotFoundException
+  public void testGetByTag() throws IOException, SAXException
   {
     Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
 
@@ -214,7 +217,7 @@ public class ElementUnitTest extends TestCase
     assertNull(el);
   }
 
-  public void testGetByTagNS() throws FileNotFoundException
+  public void testGetByTagNS() throws IOException, SAXException
   {
     Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
     Element root = doc.getRoot();
@@ -246,7 +249,7 @@ public class ElementUnitTest extends TestCase
    * XML source file has name spaces defined but parser is configured without name space support. Element without prefix
    * is found but elements with name spaces are not.
    */
-  public void testGetByTagNoNS() throws FileNotFoundException
+  public void testGetByTagNoNS() throws IOException, SAXException
   {
     Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
     Element root = doc.getRoot();
@@ -260,7 +263,7 @@ public class ElementUnitTest extends TestCase
     assertNull(root.getByTagNS(FAKE_NS, "el"));
   }
 
-  public void testFindByTag() throws FileNotFoundException
+  public void testFindByTag() throws IOException, SAXException
   {
     Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
     Element root = doc.getRoot();
@@ -285,7 +288,7 @@ public class ElementUnitTest extends TestCase
     assertEquals(0, elist.size());
   }
 
-  public void testFindByTagNS() throws FileNotFoundException
+  public void testFindByTagNS() throws IOException, SAXException
   {
     Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
     Element root = doc.getRoot();
@@ -337,7 +340,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("ηεαδερ 3", elist.item(2).getText());
   }
 
-  public void testGetByAttr() throws FileNotFoundException
+  public void testGetByAttr() throws IOException, SAXException
   {
     Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
     Element root = doc.getRoot();
@@ -355,7 +358,21 @@ public class ElementUnitTest extends TestCase
     assertNull(root.getByAttr("fake-attr", "fake-value"));
   }
 
-  public void testFindByAttr() throws FileNotFoundException
+  public void testGetByAttrNS() throws IOException, SAXException
+  {
+    Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
+    Element root = doc.getRoot();
+
+    Element el = root.getByAttrNS("js-lib.com/ns1", "attr");
+    assertNotNull(el);
+    assertEquals("ns1.element", el.getText());
+
+    el = root.getByAttrNS("js-lib.com/ns1", "attr", "ns1.value");
+    assertNotNull(el);
+    assertEquals("ns1.element", el.getText());
+  }
+
+  public void testFindByAttr() throws IOException, SAXException
   {
     Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
     Element root = doc.getRoot();
@@ -378,46 +395,25 @@ public class ElementUnitTest extends TestCase
     assertTrue(root.findByAttr("fake-attr", "fake-value").isEmpty());
   }
 
-  public void _testFindByAttrNS() throws FileNotFoundException
+  public void testFindByAttrNS() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadXMLNS(new File("fixture/dom/document-ns.xml"));
-    doc.dump();
+    Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
     Element root = doc.getRoot();
 
-    EList elist = root.findByAttr("attr");
+    EList elist = root.findByAttrNS("js-lib.com/ns1", "attr");
     assertNotNull(elist);
-    assertEquals(3, elist.size());
-    assertEquals("element", elist.item(0).getText());
-    assertEquals("ns1.element", elist.item(1).getText());
-    assertEquals("ns2.element", elist.item(2).getText());
+    assertEquals(2, elist.size());
+    assertEquals("ns1.element", elist.item(0).getText());
+    assertEquals("ns2.element", elist.item(1).getText());
 
-    elist = root.findByAttr("attr", "value");
+    elist = root.findByAttrNS("js-lib.com/ns1", "attr", "ns1.value");
     assertNotNull(elist);
-    assertEquals(3, elist.size());
-    assertEquals("element", elist.item(0).getText());
-    assertEquals("ns1.element", elist.item(1).getText());
-    assertEquals("ns2.element", elist.item(2).getText());
-
-    elist = root.findByXPathNS(new NamespaceContext()
-    {
-      @Override
-      public String getNamespaceURI(String prefix)
-      {
-        return "js-lib.com/ns1";
-      }
-    }, "/*[@ns1:attr='ns1.value']");
-    assertNotNull(elist);
-    assertEquals(3, elist.size());
-    assertEquals("element", elist.item(0).getText());
-    assertEquals("ns1.element", elist.item(1).getText());
-    assertEquals("ns2.element", elist.item(2).getText());
-
-    assertTrue(root.findByAttr("fake-attr").isEmpty());
-    assertTrue(root.findByAttr("attr", "fake-value").isEmpty());
-    assertTrue(root.findByAttr("fake-attr", "fake-value").isEmpty());
+    assertEquals(2, elist.size());
+    assertEquals("ns1.element", elist.item(0).getText());
+    assertEquals("ns2.element", elist.item(1).getText());
   }
 
-  public void testGetByXPath()
+  public void testGetByXPath() throws XPathException
   {
     Element h2 = doc.getByTag("h2");
     h2.addChild(doc.createElement("h4"));
@@ -431,7 +427,7 @@ public class ElementUnitTest extends TestCase
     assertNotNull(h2.getByXPath("/HTML/BODY/H1"));
   }
 
-  public void testGetByXPathNS()
+  public void testGetByXPathNS() throws SAXException, XPathException
   {
     String html = "<!DOCTYPE html>" + //
         "<html xmlns:ns='js-lib.com/ns'>" + //
@@ -471,7 +467,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("ns:div", el.getTag());
   }
 
-  public void testFindByXPath()
+  public void testFindByXPath() throws XPathException
   {
     Element body = doc.getByTag("body");
     EList elist = body.findByXPath("child::*");
@@ -487,7 +483,7 @@ public class ElementUnitTest extends TestCase
     assertTrue(body.findByXPath("H4").isEmpty());
   }
 
-  public void testFindByXPathNS()
+  public void testFindByXPathNS() throws SAXException, XPathException
   {
     String html = "<!DOCTYPE html>" + //
         "<html xmlns:ns='js-lib.com/ns'>" + //
@@ -531,7 +527,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("paragraph 2", elist.item(1).getText());
   }
 
-  public void testGetAttr() throws FileNotFoundException
+  public void testGetAttr() throws IOException, SAXException
   {
     Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
     Element el = doc.getRoot().getByTag("el");
@@ -539,7 +535,7 @@ public class ElementUnitTest extends TestCase
     assertNull(el.getAttr("fake-attr"));
   }
 
-  public void testGetAttrNS() throws FileNotFoundException
+  public void testGetAttrNS() throws IOException, SAXException
   {
     Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
     Element el = doc.getRoot().getByTagNS(NS1, "el");
@@ -595,7 +591,7 @@ public class ElementUnitTest extends TestCase
     assertFalse(body.hasChildren());
   }
 
-  public void testRemoveAttr() throws FileNotFoundException
+  public void testRemoveAttr() throws IOException, SAXException
   {
     Document doc = builder().loadXML(new File("fixture/document-ns.xml"));
     Element el = doc.getByTag("el");
@@ -604,7 +600,7 @@ public class ElementUnitTest extends TestCase
     assertFalse(el.hasAttr("attr"));
   }
 
-  public void testRemoveAttrNS() throws FileNotFoundException
+  public void testRemoveAttrNS() throws IOException, SAXException
   {
     Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
     Element el = doc.getByTagNS(NS1, "el");
@@ -622,7 +618,7 @@ public class ElementUnitTest extends TestCase
     assertFalse(el.hasAttrNS(NS2, "attr"));
   }
 
-  public void testRemoveCssClass() throws FileNotFoundException
+  public void testRemoveCssClass() throws IOException, SAXException
   {
     Element h3 = doc.getByTag("h3");
     assertTrue(h3.hasCssClass("inner"));
@@ -642,7 +638,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("header inner", h3.getAttr("class"));
   }
 
-  public void testTrace()
+  public void testTrace() throws SAXException
   {
     String html = "<!DOCTYPE html>" + //
         "<html>" + //
@@ -666,7 +662,7 @@ public class ElementUnitTest extends TestCase
    * Replace an element that is part of the document tree with a newly create element. After replacement newly element
    * becomes part of the document tree but replaced element is not longer.
    */
-  public void testReplace()
+  public void testReplace() throws SAXException
   {
     String html = "<!DOCTYPE html>" + //
         "<html>" + //
@@ -698,7 +694,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("h2", elist.item(1).getTag());
   }
 
-  public void testReplaceChild()
+  public void testReplaceChild() throws SAXException
   {
     String string = "<!DOCTYPE html>" + //
         "<html>" + //
@@ -777,7 +773,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("h3", elist.item(3).getTag());
   }
 
-  public void testInsertBefore_ImportNS() throws FileNotFoundException
+  public void testInsertBefore_ImportNS() throws IOException, SAXException, XPathException
   {
     NamespaceContext ns = new NamespaceContext()
     {
@@ -851,7 +847,7 @@ public class ElementUnitTest extends TestCase
     assertEquals("h2", elist.item(3).getTag());
   }
 
-  public void testSetRichText()
+  public void testSetRichText() throws IOException, SAXException
   {
     Element body = doc.getByTag("body");
     body.setRichText("<p>Some <b>bold</b> and <i>italic</i> text.</p>");

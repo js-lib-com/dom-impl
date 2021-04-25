@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.w3c.dom.NamedNodeMap;
@@ -19,10 +16,7 @@ import js.dom.EList;
 import js.dom.Element;
 import js.dom.NamespaceContext;
 import js.lang.BugError;
-import js.log.Log;
-import js.log.LogFactory;
 import js.util.Params;
-import js.util.Strings;
 
 /**
  * Master document implementation.
@@ -31,9 +25,6 @@ import js.util.Strings;
  */
 public final class DocumentImpl implements Document
 {
-  /** Class logger. */
-  private static final Log log = LogFactory.getLog(Document.class);
-
   /** Back reference key is used to store element instance to W3C node, as user defined data. */
   private static final String BACK_REF = "__js_element__";
 
@@ -136,13 +127,17 @@ public final class DocumentImpl implements Document
   }
 
   @Override
-  public Element createElementNS(String namespaceURI, String tagName)
+  public Element createElementNS(String namespaceURI, String tagName, String... attrNameValues)
   {
     if(namespaceURI == null) {
-      return createElement(tagName);
+      return createElement(tagName, attrNameValues);
     }
     Params.notNullOrEmpty(tagName, "Tag name");
-    return getElement(doc.createElementNS(namespaceURI, tagName));
+    Element el = getElement(doc.createElementNS(namespaceURI, tagName));
+    if(attrNameValues.length > 0) {
+      el.setAttrsNS(namespaceURI, attrNameValues);
+    }
+    return el;
   }
 
   @Override
@@ -184,20 +179,19 @@ public final class DocumentImpl implements Document
   }
 
   @Override
-  public EList findByCss(String selector, Object... args)
-  {
-    Params.notNull(selector, "CSS selector");
-    throw new UnsupportedOperationException("CSS selectors not supported.");
-  }
-
-  @Override
   public EList findByCssClass(String cssClass)
   {
     Params.notNull(cssClass, "CSS class");
     if(cssClass.isEmpty()) {
       return createEList(new NodeListImpl());
     }
-    return findByXPath(XPATH.CSS_CLASS, cssClass);
+    try {
+      return findByXPath(XPATH.getElementsByClassName(cssClass));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
   @Override
@@ -218,26 +212,26 @@ public final class DocumentImpl implements Document
   }
 
   @Override
-  public EList findByXPath(String xpath, Object... args)
+  public EList findByXPath(String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNullOrEmpty(xpath, "XPath");
-    return evaluateXPathNodeList(doc, xpath, args);
+    return createEList(XPATH.evaluateXPathNodeList(doc, xpath, args));
   }
 
   @Override
-  public EList findByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args)
+  public EList findByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNull(namespaceContext, "Namespace context");
     Params.notNullOrEmpty(xpath, "XPath");
-    return evaluateXPathNodeListNS(doc, namespaceContext, xpath, args);
+    return createEList(XPATH.evaluateXPathNodeListNS(doc, namespaceContext, xpath, args));
   }
 
   @Override
-  public EList findByXPathNS(String namespaceURI, String xpath, Object... args)
+  public EList findByXPathNS(String namespaceURI, String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNullOrEmpty(namespaceURI, "Namespace URI");
     Params.notNullOrEmpty(xpath, "XPath");
-    return evaluateXPathNodeListNS(doc, new NamespaceContext()
+    return createEList(XPATH.evaluateXPathNodeListNS(doc, new NamespaceContext()
     {
       @Override
       public String getNamespaceURI(String prefix)
@@ -245,44 +239,43 @@ public final class DocumentImpl implements Document
         // it is expected to be used on documents with a single namespace
         return namespaceURI;
       }
-    }, xpath, args);
-  }
-
-  @Override
-  public Element getByCss(String selector, Object... args)
-  {
-    Params.notNullOrEmpty(selector, "CSS selector");
-    throw new UnsupportedOperationException("CSS selector not supported.");
+    }, xpath, args));
   }
 
   @Override
   public Element getByCssClass(String cssClass)
   {
     Params.notNullOrEmpty(cssClass, "CSS class");
-    return getByXPath(XPATH.CSS_CLASS, cssClass);
+    try {
+      return getByXPath(XPATH.getElementsByClassName(cssClass));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
   @Override
-  public Element getByXPath(String xpath, Object... args)
+  public Element getByXPath(String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNullOrEmpty(xpath, "XPath");
-    return evaluateXPathNode(doc, xpath, args);
+    return getElement(XPATH.evaluateXPathNode(doc, xpath, args));
   }
 
   @Override
-  public Element getByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args)
+  public Element getByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNull(namespaceContext, "Namespace context");
     Params.notNullOrEmpty(xpath, "XPath");
-    return evaluateXPathNodeNS(doc, namespaceContext, xpath, args);
+    return getElement(XPATH.evaluateXPathNodeNS(doc, namespaceContext, xpath, args));
   }
 
   @Override
-  public Element getByXPathNS(String namespaceURI, String xpath, Object... args)
+  public Element getByXPathNS(String namespaceURI, String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNullOrEmpty(namespaceURI, "Namespace URI");
     Params.notNullOrEmpty(xpath, "XPath");
-    return evaluateXPathNodeNS(doc, new NamespaceContext()
+    return getElement(XPATH.evaluateXPathNodeNS(doc, new NamespaceContext()
     {
       @Override
       public String getNamespaceURI(String prefix)
@@ -290,21 +283,83 @@ public final class DocumentImpl implements Document
         // it is expected to be used on documents with a single namespace
         return namespaceURI;
       }
-    }, xpath, args);
+    }, xpath, args));
   }
 
   @Override
   public Element getByAttr(String name, String... value)
   {
     Params.notNullOrEmpty(name, "Attribute name");
-    return getByXPath(buildAttrXPath(name, value));
+    try {
+      return getByXPath(XPATH.getElementsByAttrNameValue(name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
+  }
+
+  @Override
+  public Element getByAttrNS(String namespaceURI, String name, String... value)
+  {
+    if(namespaceURI == null) {
+      return getByAttr(name, value);
+    }
+    Params.notNullOrEmpty(name, "Attribute name");
+
+    String namespacePrefix = "ns";
+    try {
+      return getByXPathNS(new NamespaceContext()
+      {
+        @Override
+        public String getNamespaceURI(String prefix)
+        {
+          return prefix.equals(namespacePrefix) ? namespaceURI : null;
+        }
+      }, XPATH.getElementsByAttrNameValueNS(namespacePrefix, name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
   @Override
   public EList findByAttr(String name, String... value)
   {
     Params.notNullOrEmpty(name, "Attribute name");
-    return findByXPath(buildAttrXPath(name, value));
+    try {
+      return findByXPath(XPATH.getElementsByAttrNameValue(name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
+  }
+
+  @Override
+  public EList findByAttrNS(String namespaceURI, String name, String... value)
+  {
+    if(namespaceURI == null) {
+      return findByAttr(name, value);
+    }
+    Params.notNullOrEmpty(name, "Attribute name");
+
+    String namespacePrefix = "ns";
+    try {
+      return findByXPathNS(new NamespaceContext()
+      {
+        @Override
+        public String getNamespaceURI(String prefix)
+        {
+          return prefix.equals(namespacePrefix) ? namespaceURI : null;
+        }
+      }, XPATH.getElementsByAttrNameValueNS(namespacePrefix, name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
   @Override
@@ -373,163 +428,6 @@ public final class DocumentImpl implements Document
       if(child instanceof org.w3c.dom.Element) {
         removeNamespaceDeclarations((org.w3c.dom.Element)child, namespaceURI);
       }
-    }
-  }
-
-  // ---------------------------------------------------------
-  // XPath evaluation utility methods
-
-  /**
-   * Evaluate XPath expression expecting a single result node.
-   * 
-   * @param contextNode evaluation context node,
-   * @param expression XPath expression, formatting tags supported,
-   * @param args optional formatting arguments.
-   * @return evaluation result as element, possible null.
-   */
-  Element evaluateXPathNode(Node contextNode, String expression, Object... args)
-  {
-    return evaluateXPathNodeNS(contextNode, null, expression, args);
-  }
-
-  /**
-   * Namespace aware variant for {@link #evaluateXPathNode(Node, String, Object...)}.
-   * 
-   * @param contextNode evaluation context node,
-   * @param namespaceContext namespace context maps prefixes to namespace URIs,
-   * @param expression XPath expression, formatting tags supported,
-   * @param args optional formatting arguments.
-   * @return evaluation result as element, possible null.
-   */
-  Element evaluateXPathNodeNS(Node contextNode, NamespaceContext namespaceContext, String expression, Object... args)
-  {
-    if(args.length > 0) {
-      expression = Strings.format(expression, args);
-    }
-
-    Node node = null;
-    try {
-      XPath xpath = XPathFactory.newInstance().newXPath();
-      if(namespaceContext != null) {
-        xpath.setNamespaceContext(namespaceContext);
-      }
-      Object result = xpath.evaluate(expression, contextNode, XPathConstants.NODE);
-      if(result == null) {
-        return null;
-      }
-      node = (Node)result;
-      if(node.getNodeType() != Node.ELEMENT_NODE) {
-        log.debug("XPath expression |%s| on |%s| yields a node that is not element. Force to null.", xpath, contextNode);
-        return null;
-      }
-    }
-    catch(XPathExpressionException e) {
-      throw new DomException(e);
-    }
-    return getElement(node);
-  }
-
-  /** Empty nodes list constant. */
-  private static final NodeList EMPTY_NODE_LIST = new EmptyNodeList();
-
-  /**
-   * Evaluate XPath expression expected to return nodes list. Evaluate expression and return result nodes as elements
-   * list.
-   * 
-   * @param contextNode evaluation context node,
-   * @param expression XPath expression, formatting tags supported,
-   * @param args optional formatting arguments.
-   * @return list of result elements, possible empty.
-   */
-  EList evaluateXPathNodeList(Node contextNode, String expression, Object... args)
-  {
-    return evaluateXPathNodeListNS(contextNode, null, expression, args);
-  }
-
-  /**
-   * Namespace aware variant of {@link #evaluateXPathNodeList(Node, String, Object...)}.
-   * 
-   * @param contextNode evaluation context node,
-   * @param namespaceContext namespace context maps prefixes to namespace URIs,
-   * @param expression XPath expression with optional formatting tags,
-   * @param args optional formatting arguments.
-   * @return list of result elements, possible empty.
-   */
-  EList evaluateXPathNodeListNS(Node contextNode, NamespaceContext namespaceContext, String expression, Object... args)
-  {
-    if(args.length > 0) {
-      expression = Strings.format(expression, args);
-    }
-
-    NodeList nodeList = null;
-    try {
-      XPath xpath = XPathFactory.newInstance().newXPath();
-      if(namespaceContext != null) {
-        xpath.setNamespaceContext(namespaceContext);
-      }
-      Object result = xpath.evaluate(expression, contextNode, XPathConstants.NODESET);
-      if(result != null) {
-        nodeList = (NodeList)result;
-      }
-    }
-    catch(XPathExpressionException e) {
-      throw new DomException(e);
-    }
-
-    if(nodeList == null) {
-      nodeList = EMPTY_NODE_LIST;
-    }
-    return createEList(nodeList);
-  }
-
-  /**
-   * Build XPath expression for elements with attribute name and optional value.
-   * 
-   * @param name attribute name,
-   * @param value optional attribute value.
-   * @return XPath expression.
-   */
-  String buildAttrXPath(String name, String... value)
-  {
-    StringBuilder sb = new StringBuilder();
-    sb.append("//*[@");
-    sb.append(name);
-    if(value.length == 1) {
-      sb.append("='");
-      sb.append(value[0]);
-      sb.append("'");
-    }
-    sb.append("]");
-    return sb.toString();
-  }
-
-  /**
-   * Empty node list returned by <code>find</code> methods when no item fulfill select criteria.
-   * 
-   * @author Iulian Rotaru
-   */
-  private static class EmptyNodeList implements NodeList
-  {
-    /**
-     * Since this node list implementation is always empty this operation is unsupported.
-     * 
-     * @throws UnsupportedOperationException this operation is not supported.
-     */
-    @Override
-    public Node item(int index) throws UnsupportedOperationException
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Always returns zero to indicate this node list is empty.
-     * 
-     * @return always zero.
-     */
-    @Override
-    public int getLength()
-    {
-      return 0;
     }
   }
 }

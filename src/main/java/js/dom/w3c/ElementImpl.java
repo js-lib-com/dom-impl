@@ -11,6 +11,14 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import js.dom.Attr;
 import js.dom.ChildNode;
@@ -21,13 +29,6 @@ import js.dom.NamespaceContext;
 import js.lang.BugError;
 import js.util.Params;
 import js.util.Strings;
-
-import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * Document element implementation.
@@ -115,17 +116,16 @@ final class ElementImpl implements Element
   }
 
   @Override
-  public EList findByCss(String selector, Object... args)
-  {
-    Params.notNullOrEmpty(selector, "CSS selector");
-    throw new UnsupportedOperationException("CSS selectors not supported.");
-  }
-
-  @Override
   public EList findByCssClass(String cssClass)
   {
     Params.notNullOrEmpty(cssClass, "CSS class");
-    return findByXPath(XPATH.CSS_CLASS, cssClass);
+    try {
+      return findByXPath(XPATH.getElementsByClassName(cssClass));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
   @Override
@@ -141,56 +141,122 @@ final class ElementImpl implements Element
     if(namespaceURI == null) {
       return findByTag(tagName);
     }
+
     Params.notNullOrEmpty(tagName, "Tag name");
     return ownerDoc.createEList(node.getElementsByTagNameNS(namespaceURI, tagName));
   }
 
   @Override
-  public EList findByXPath(String xpath, Object... args)
+  public EList findByXPath(String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNullOrEmpty(xpath, "XPath");
-    return ownerDoc.evaluateXPathNodeList(node, xpath, args);
+    return ownerDoc.createEList(XPATH.evaluateXPathNodeList(node, xpath, args));
   }
 
   @Override
-  public EList findByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args)
+  public EList findByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNull(namespaceContext, "Name space context");
     Params.notNullOrEmpty(xpath, "XPath");
-    return ownerDoc.evaluateXPathNodeListNS(node, namespaceContext, xpath, args);
+    return ownerDoc.createEList(XPATH.evaluateXPathNodeListNS(node, namespaceContext, xpath, args));
+  }
+
+  @Override
+  public EList findByXPathNS(String namespaceURI, String xpath, Object... args) throws XPathExpressionException
+  {
+    Params.notNullOrEmpty(namespaceURI, "Namespace URI");
+    Params.notNullOrEmpty(xpath, "XPath");
+    return ownerDoc.createEList(XPATH.evaluateXPathNodeListNS(node, new NamespaceContext()
+    {
+      @Override
+      public String getNamespaceURI(String prefix)
+      {
+        // it is expected to be used on documents with a single namespace
+        return namespaceURI;
+      }
+    }, xpath, args));
   }
 
   @Override
   public Element getByAttr(String name, String... value)
   {
-    return getByXPath(ownerDoc.buildAttrXPath(name, value));
+    try {
+      return getByXPath(XPATH.getElementsByAttrNameValue(name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
+  }
+
+  @Override
+  public Element getByAttrNS(final String namespaceURI, String name, String... value)
+  {
+    if(namespaceURI == null) {
+      return getByAttr(name, value);
+    }
+
+    String namespacePrefix = "ns";
+    try {
+      return getByXPathNS(new NamespaceContext()
+      {
+        @Override
+        public String getNamespaceURI(String prefix)
+        {
+          return prefix.equals(namespacePrefix) ? namespaceURI : null;
+        }
+      }, XPATH.getElementsByAttrNameValueNS(namespacePrefix, name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
   @Override
   public EList findByAttr(String name, String... value)
   {
-    return findByXPath(ownerDoc.buildAttrXPath(name, value));
+    try {
+      return findByXPath(XPATH.getElementsByAttrNameValue(name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
-  // @Override
-  // public EList findByAttrNS(final String namespaceURI, String name, String... value) {
-  // return findByXPathNS(new NamespaceContext() {
-  // @Override
-  // public String getNamespaceURI(String prefix) {
-  // return namespaceURI;
-  // }
-  // }, ownerDoc.buildAttrXPathNS(name, value));
-  // }
+  @Override
+  public EList findByAttrNS(final String namespaceURI, String name, String... value)
+  {
+    if(namespaceURI == null) {
+      return findByAttr(name, value);
+    }
+
+    String namespacePrefix = "ns";
+    try {
+      return findByXPathNS(new NamespaceContext()
+      {
+        @Override
+        public String getNamespaceURI(String prefix)
+        {
+          return prefix.equals(namespacePrefix) ? namespaceURI : null;
+        }
+      }, XPATH.getElementsByAttrNameValueNS(namespacePrefix, name, value));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
+  }
 
   @Override
   public Iterable<Attr> getAttrs()
   {
-    // TODO: decide if better to create custom iterator
-    List<Attr> attrs = new ArrayList<Attr>();
+    List<Attr> attrs = new ArrayList<>();
     NamedNodeMap attributes = node.getAttributes();
     for(int i = 0, l = attributes.getLength(); i < l; i++) {
       org.w3c.dom.Attr a = (org.w3c.dom.Attr)attributes.item(i);
-      attrs.add(new AttrImpl(a.getNodeName(), a.getNodeValue().trim()));
+      attrs.add(new AttrImpl(a.getNamespaceURI(), a.getNodeName(), a.getNodeValue().trim()));
     }
     return Collections.unmodifiableList(attrs);
   }
@@ -215,17 +281,16 @@ final class ElementImpl implements Element
   }
 
   @Override
-  public Element getByCss(String selector, Object... args)
-  {
-    Params.notNullOrEmpty(selector, "CSS selector");
-    throw new UnsupportedOperationException("CSS selectors not supported.");
-  }
-
-  @Override
   public Element getByCssClass(String cssClass)
   {
     Params.notNullOrEmpty(cssClass, "CSS class");
-    return ownerDoc.evaluateXPathNode(node, XPATH.CSS_CLASS, cssClass);
+    try {
+      return ownerDoc.getElement(XPATH.evaluateXPathNode(node, XPATH.getElementsByClassName(cssClass)));
+    }
+    catch(XPathExpressionException e) {
+      // XPath expression is build internally and cannot fail
+      throw new BugError(e);
+    }
   }
 
   @Override
@@ -246,18 +311,34 @@ final class ElementImpl implements Element
   }
 
   @Override
-  public Element getByXPath(String xpath, Object... args)
+  public Element getByXPath(String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNullOrEmpty(xpath, "XPath");
-    return ownerDoc.evaluateXPathNode(node, xpath, args);
+    return ownerDoc.getElement(XPATH.evaluateXPathNode(node, xpath, args));
   }
 
   @Override
-  public Element getByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args)
+  public Element getByXPathNS(NamespaceContext namespaceContext, String xpath, Object... args) throws XPathExpressionException
   {
     Params.notNull(namespaceContext, "Name space context");
     Params.notNullOrEmpty(xpath, "XPath");
-    return ownerDoc.evaluateXPathNodeNS(node, namespaceContext, xpath, args);
+    return ownerDoc.getElement(XPATH.evaluateXPathNodeNS(node, namespaceContext, xpath, args));
+  }
+
+  @Override
+  public Element getByXPathNS(String namespaceURI, String xpath, Object... args) throws XPathExpressionException
+  {
+    Params.notNullOrEmpty(namespaceURI, "Namespace URI");
+    Params.notNullOrEmpty(xpath, "XPath");
+    return ownerDoc.getElement(XPATH.evaluateXPathNodeNS(node, new NamespaceContext()
+    {
+      @Override
+      public String getNamespaceURI(String prefix)
+      {
+        // it is expected to be used on documents with a single namespace
+        return namespaceURI;
+      }
+    }, xpath, args));
   }
 
   @Override
@@ -382,6 +463,13 @@ final class ElementImpl implements Element
   public String getCaseSensitiveTag()
   {
     return node.getNodeName();
+  }
+
+  @Override
+  public Element renameElement(String tagName)
+  {
+    ownerDoc.getDocument().renameNode(node, null, tagName);
+    return this;
   }
 
   @Override
@@ -619,6 +707,21 @@ final class ElementImpl implements Element
   }
 
   @Override
+  public Element setAttrsNS(String namespaceURI, String... nameValuePairs)
+  {
+    if(namespaceURI == null) {
+      return setAttrs(nameValuePairs);
+    }
+
+    Params.isTrue(nameValuePairs.length % 2 == 0, "Missing value for last attribute.");
+    for(int i = 0, l = nameValuePairs.length - 1; i < l; i += 2) {
+      Params.notNull(nameValuePairs[i + 1], "Attribute value");
+      node.setAttributeNS(namespaceURI, nameValuePairs[i], nameValuePairs[i + 1]);
+    }
+    return this;
+  }
+
+  @Override
   public Element addText(String text)
   {
     node.appendChild(ownerDoc.getDocument().createTextNode(text));
@@ -646,7 +749,7 @@ final class ElementImpl implements Element
   private static final String XML_ROOT_END = "</fragment>";
 
   @Override
-  public Element setRichText(String richText)
+  public Element setRichText(String richText) throws IOException, SAXException
   {
     try {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -662,13 +765,7 @@ final class ElementImpl implements Element
       node.appendChild(richTextFragment);
     }
     catch(ParserConfigurationException e) {
-      throw new BugError(e);
-    }
-    catch(SAXException e) {
-      throw new DomException("Invalid fragment source.");
-    }
-    catch(IOException e) {
-      throw new BugError(e);
+      throw new SAXException(e.getMessage());
     }
     return this;
   }

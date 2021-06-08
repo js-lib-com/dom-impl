@@ -1,4 +1,4 @@
-package js.dom.w3c.unit;
+package js.dom.w3c;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class DocumentUnitTest extends TestCase
    */
   public void testGetById() throws IOException, SAXException
   {
-    File file = getFile("document-utf.xml");
+    File file = file("document-utf.xml");
     Document doc = builder().loadXML(file);
     assertNull(doc.getById("id1"));
 
@@ -87,7 +87,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByTag() throws IOException, SAXException
   {
-    Document doc = builder().loadXML(getFile("document-ns.xml"));
+    Document doc = builder().loadXML(file("document-ns.xml"));
 
     Element el = doc.getByTag("el");
     assertNotNull(el);
@@ -96,7 +96,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByTagNS() throws IOException, SAXException
   {
-    Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     Element el = doc.getByTag("el");
     assertNotNull(el);
@@ -116,7 +116,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByTagOnDocumentWithoutNamespace() throws IOException, SAXException
   {
-    Document doc = builder().loadXML(getFile("document-ns.xml"));
+    Document doc = builder().loadXML(file("document-ns.xml"));
 
     Element el = doc.getByTag("ns1:el");
     assertNotNull(el);
@@ -134,7 +134,7 @@ public class DocumentUnitTest extends TestCase
    */
   public void testGetByTagNSOnDocumentWithoutNamespace() throws IOException, SAXException
   {
-    Document doc = builder().loadXML(getFile("document-ns.xml"));
+    Document doc = builder().loadXML(file("document-ns.xml"));
 
     Element el = doc.getByTag("el");
     assertNotNull(el);
@@ -153,7 +153,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testFindByTag() throws IOException, SAXException
   {
-    Document doc = builder().loadXML(getFile("document-ns.xml"));
+    Document doc = builder().loadXML(file("document-ns.xml"));
 
     // document is not parsed with name space and prefix is part of tag name; colon is valid for tag name
     // so that root has three child elements: 'el', 'ns1:el' and 'ns2:el'
@@ -183,7 +183,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testFindByTagNS() throws IOException, SAXException
   {
-    Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     EList elist = doc.findByTag("el");
     assertNotNull(elist);
@@ -220,7 +220,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByCssClass() throws IOException, SAXException
   {
-    Document doc = builder().loadHTML(getFile("page-simple.html"));
+    Document doc = builder().loadHTML(file("page-simple.html"));
     assertEquals("ηεαδερ 1", doc.getByCssClass("header").getText());
     assertEquals("ηεαδερ 1", doc.getByCssClass("title").getText());
     assertEquals("ηεαδερ 2", doc.getByCssClass("chapter").getText());
@@ -229,7 +229,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testFindByCssClass() throws IOException, SAXException
   {
-    Document doc = builder().loadHTML(getFile("page-simple.html"));
+    Document doc = builder().loadHTML(file("page-simple.html"));
     EList elist = doc.findByCssClass("header");
     assertNotNull(elist);
     assertEquals(3, elist.size());
@@ -240,7 +240,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByEmptyCssClass() throws IOException, SAXException
   {
-    Document doc = builder().loadHTML(getFile("page-simple.html"));
+    Document doc = builder().loadHTML(file("page-simple.html"));
     try {
       doc.getByCssClass("");
     }
@@ -252,7 +252,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByNullCssClass() throws IOException, SAXException
   {
-    Document doc = builder().loadHTML(getFile("page-simple.html"));
+    Document doc = builder().loadHTML(file("page-simple.html"));
     try {
       doc.getByCssClass(null);
     }
@@ -264,7 +264,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByXPath() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadHTML(getFile("page-simple.html"));
+    Document doc = builder().loadHTML(file("page-simple.html"));
 
     Element el = doc.getByXPath("/HTML/BODY/H1");
     assertNotNull(el);
@@ -276,7 +276,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByXPathNS() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     Element el = doc.getByXPath("//el");
     assertNotNull(el);
@@ -299,7 +299,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByXPathNS_NamespaceURI() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     Element el = doc.getByXPath("//el");
     assertNotNull(el);
@@ -312,7 +312,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByXPathNS_NamespaceURI_Attr() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     Element el = doc.getByXPath("//*[@attr]");
     assertNotNull(el);
@@ -329,7 +329,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testFindByXPath() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadHTML(getFile("page-simple.html"));
+    Document doc = builder().loadHTML(file("page-simple.html"));
 
     EList elist = doc.findByXPath("//*[@class]");
     assertNotNull(elist);
@@ -345,7 +345,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testFindByXPathNS() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadXMLNS(getFile("document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     EList elist = doc.findByXPath("//el");
     assertNotNull(elist);
@@ -370,7 +370,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByXPathCaseSensitive() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadHTML(getFile("page-simple.html"));
+    Document doc = builder().loadHTML(file("page-simple.html"));
 
     // HTML tags are upper case and XPath expression is case sensitive
     Element el = doc.getByXPath("/html/body/h1");
@@ -381,7 +381,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByAttr() throws IOException, SAXException
   {
-    Document doc = builder().loadXML(getFile("document-ns.xml"));
+    Document doc = builder().loadXML(file("document-ns.xml"));
 
     Element el = doc.getByAttr("attr");
     assertNotNull(el);
@@ -398,7 +398,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testGetByAttrNS() throws IOException, SAXException
   {
-    Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     Element el = doc.getByAttrNS("js-lib.com/ns1", "attr");
     assertNotNull(el);
@@ -411,7 +411,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testFindByAttr() throws IOException, SAXException
   {
-    Document doc = builder().loadXML(getFile("document-ns.xml"));
+    Document doc = builder().loadXML(file("document-ns.xml"));
 
     EList elist = doc.findByAttr("attr");
     assertNotNull(elist);
@@ -433,7 +433,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testFindByAttrNS() throws IOException, SAXException, XPathException
   {
-    Document doc = builder().loadXMLNS(new File("fixture/document-ns.xml"));
+    Document doc = builder().loadXMLNS(file("document-ns.xml"));
 
     EList elist = doc.findByAttrNS("js-lib.com/ns1", "attr");
     assertNotNull(elist);
@@ -450,7 +450,7 @@ public class DocumentUnitTest extends TestCase
 
   public void testSerialize() throws IOException, SAXException
   {
-    Document doc = builder().loadHTML(getFile("document-utf.xml"));
+    Document doc = builder().loadHTML(file("document-utf.xml"));
     PrintStream systemOut = System.out;
 
     StringWriter string = new StringWriter();
@@ -474,8 +474,8 @@ public class DocumentUnitTest extends TestCase
     return Classes.getFieldValue(el, "node");
   }
 
-  private File getFile(String resource)
+  private File file(String resource)
   {
-    return new File("fixture/" + resource);
+    return new File("src/test/resources/" + resource);
   }
 }

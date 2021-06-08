@@ -1,4 +1,4 @@
-package js.dom.w3c.unit;
+package js.dom.w3c;
 
 import org.xml.sax.SAXException;
 

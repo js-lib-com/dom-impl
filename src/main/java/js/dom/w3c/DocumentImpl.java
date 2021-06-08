@@ -29,7 +29,7 @@ public final class DocumentImpl implements Document
   private static final String BACK_REF = "__js_element__";
 
   /** Wrapped W3C DOM document object. */
-  private org.w3c.dom.Document doc;
+  private final org.w3c.dom.Document doc;
 
   /**
    * Construct document object wrapping native W3C DOM document.
@@ -376,10 +376,15 @@ public final class DocumentImpl implements Document
   }
 
   @Override
-  public void serialize(Writer writer, boolean... closeWriter) throws IOException
+  public void serialize(Writer writer, Object... flags) throws IOException
   {
+    boolean closeWriter = flags.length > 0 ? (boolean)flags[0] : false;
+    boolean xmlDeclaration = flags.length > 1 ? (boolean)flags[1] : true;
+
     Serializer serializer = new Serializer(writer);
-    if(closeWriter.length == 1 && closeWriter[0] == true) {
+    serializer.setXmlDeclaration(xmlDeclaration);
+
+    if(closeWriter) {
       try {
         serializer.serialize(this);
       }

@@ -1,4 +1,4 @@
-package js.dom.w3c.unit;
+package js.dom.w3c;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,7 +35,7 @@ public class BuilderUnitTest
   @Test
   public void documentValidation() throws SAXException, IOException
   {
-    File file = getFile("document-utf.xml");
+    File file = file("document-utf.xml");
 
     Validator validator = getSchema().newValidator();
     Source source = new StreamSource(file);
@@ -105,14 +105,14 @@ public class BuilderUnitTest
   @Test
   public void loadXML_UtfFile() throws SAXException, IOException
   {
-    File file = getFile("document-utf.xml");
+    File file = file("document-utf.xml");
     assertUtfDocument(builder().loadXML(file));
   }
 
   @Test
   public void loadXML_IsoFile() throws SAXException, IOException
   {
-    File file = getFile("document-iso.xml");
+    File file = file("document-iso.xml");
     assertIsoDocument(builder().loadXML(file));
   }
 
@@ -131,13 +131,13 @@ public class BuilderUnitTest
   @Test
   public void loadXML_UtfStream() throws IOException, SAXException
   {
-    assertUtfDocument(builder().loadXML(getStream("document-utf.xml")));
+    assertUtfDocument(builder().loadXML(stream("document-utf.xml")));
   }
 
   @Test
   public void loadXML_IsoStream() throws IOException, SAXException
   {
-    assertIsoDocument(builder().loadXML(getStream("document-iso.xml")));
+    assertIsoDocument(builder().loadXML(stream("document-iso.xml")));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -149,13 +149,13 @@ public class BuilderUnitTest
   @Test
   public void loadXML_UtfSource() throws IOException, SAXException
   {
-    assertUtfDocument(builder().loadXML(getFile("document-utf.xml")));
+    assertUtfDocument(builder().loadXML(file("document-utf.xml")));
   }
 
   @Test
   public void loadXML_IsoSource() throws IOException, SAXException
   {
-    assertIsoDocument(builder().loadXML(getFile("document-iso.xml")));
+    assertIsoDocument(builder().loadXML(file("document-iso.xml")));
   }
 
   public void loadXML_UtfFromURL() throws IOException, SAXException
@@ -179,13 +179,13 @@ public class BuilderUnitTest
   @Test
   public void loadHTML_UtfFile() throws IOException, SAXException
   {
-    assertUtfDocument(builder().loadHTML(getFile("page-utf.html")));
+    assertUtfDocument(builder().loadHTML(file("page-utf.html")));
   }
 
   @Test
   public void loadHTML_IsoFile() throws IOException, SAXException
   {
-    assertIsoDocument(builder().loadHTML(getFile("page-iso.html")));
+    assertIsoDocument(builder().loadHTML(file("page-iso.html")));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -199,7 +199,7 @@ public class BuilderUnitTest
   {
     final int READ_AHEAD_SIZE = 20;
 
-    InputStream inputStream = new BufferedInputStream(getStream("page-index.html"));
+    InputStream inputStream = new BufferedInputStream(stream("page-index.html"));
     assert inputStream.markSupported();
     inputStream.mark(READ_AHEAD_SIZE);
 
@@ -218,19 +218,19 @@ public class BuilderUnitTest
   @Test
   public void loadHTML_UtfStream() throws IOException, SAXException
   {
-    assertUtfDocument(builder().loadHTML(getStream("page-utf.html")));
+    assertUtfDocument(builder().loadHTML(stream("page-utf.html")));
   }
 
   @Test
   public void loadHTML_IsoStream() throws IOException, SAXException
   {
-    assertIsoDocument(builder().loadHTML(getStream("page-iso.html")));
+    assertIsoDocument(builder().loadHTML(stream("page-iso.html")));
   }
 
   @Test
   public void loadHTML_TextWithApostrophe() throws IOException, SAXException
   {
-    assertUtfDocument(builder().loadHTML(getStream("page-apostrophe.html")));
+    assertUtfDocument(builder().loadHTML(stream("page-apostrophe.html")));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -242,19 +242,19 @@ public class BuilderUnitTest
   @Test
   public void loadHTML_UtfSource() throws IOException, SAXException
   {
-    assertUtfDocument(builder().loadHTML(getFile("page-utf.html")));
+    assertUtfDocument(builder().loadHTML(file("page-utf.html")));
   }
 
   @Test
   public void loadHTML_IsoSource() throws IOException, SAXException
   {
-    assertIsoDocument(builder().loadHTML(getFile("page-iso.html")));
+    assertIsoDocument(builder().loadHTML(file("page-iso.html")));
   }
 
   @Test
   public void loadHTML5_File() throws IOException, SAXException
   {
-    Document doc = builder().loadHTML(getFile("page-html5.html"));
+    Document doc = builder().loadHTML(file("page-html5.html"));
     assertEquals("Current Value in €", doc.getByTag("h1").getText());
     assertEquals("current value in €.", doc.getByTag("p").getAttr("title"));
     assertEquals("copyright © j(s)-lib tools ® 2013", doc.getByTag("footer").getText());
@@ -263,7 +263,7 @@ public class BuilderUnitTest
   @Test
   public void parseHTML5_String() throws IOException, SAXException
   {
-    String html5 = Strings.load(getFile("page-html5.html"));
+    String html5 = Strings.load(file("page-html5.html"));
     Document doc = builder().parseHTML(html5);
     assertEquals("Current Value in €", doc.getByTag("h1").getText());
     assertEquals("current value in €.", doc.getByTag("p").getAttr("title"));
@@ -301,7 +301,7 @@ public class BuilderUnitTest
   @Test
   public void localLoadedDTD() throws IOException, SAXException
   {
-    builder().loadXML(getStream("web.xml"));
+    builder().loadXML(stream("web.xml"));
   }
 
   // ----------------------------------------------------------------------------------------------
@@ -331,25 +331,25 @@ public class BuilderUnitTest
     TestCase.assertEquals("hedîr 3", doc.getElementsByTagName("h3").item(0).getTextContent());
   }
 
-  private InputStream getStream(String resource) throws FileNotFoundException
+  private InputStream stream(String resource) throws FileNotFoundException
   {
-    return new FileInputStream(new File("fixture/" + resource));
+    return new FileInputStream(new File("src/test/resources/" + resource));
   }
 
-  private File getFile(String resource)
+  private File file(String resource)
   {
-    return new File("fixture/" + resource);
+    return new File("src/test/resources/" + resource);
   }
 
   private Schema getSchema() throws SAXException
   {
     SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    return sf.newSchema(getFile("schema.xsd"));
+    return sf.newSchema(file("schema.xsd"));
   }
 
   private Schema getBadSchema() throws SAXException
   {
     SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    return sf.newSchema(getFile("schema-bad.xsd"));
+    return sf.newSchema(file("schema-bad.xsd"));
   }
 }

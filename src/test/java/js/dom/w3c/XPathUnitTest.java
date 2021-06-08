@@ -1,4 +1,4 @@
-package js.dom.w3c.unit;
+package js.dom.w3c;
 
 import javax.xml.xpath.XPathException;
 

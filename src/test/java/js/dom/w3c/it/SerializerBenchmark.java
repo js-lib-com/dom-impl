@@ -1,4 +1,4 @@
-package js.dom.w3c.unit.it;
+package js.dom.w3c.it;
 
 import java.io.BufferedWriter;
 import java.io.File;

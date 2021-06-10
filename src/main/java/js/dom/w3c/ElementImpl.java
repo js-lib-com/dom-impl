@@ -684,15 +684,28 @@ final class ElementImpl implements Element
   }
 
   @Override
-  public Element setAttrNS(String namespaceURI, String name, String value)
+  public Element setAttrNS(String namespaceURI, String name, String value) throws IllegalArgumentException
   {
     if(namespaceURI == null) {
       return setAttr(name, value);
     }
     Params.notNullOrEmpty(name, "Attribute name");
     Params.notNull(value, "Attribute value");
-    node.setAttributeNS(namespaceURI, name, value);
-    return this;
+
+    if(name.indexOf(':') != -1) {
+      node.setAttributeNS(namespaceURI, name, value);
+      return this;
+    }
+
+    NamedNodeMap attributes = node.getAttributes();
+    for(int i = 0; i < attributes.getLength(); ++i) {
+      final Node attribute = attributes.item(i);
+      if(namespaceURI.equals(attribute.getNamespaceURI()) && name.equals(attribute.getLocalName())) {
+        attribute.setNodeValue(value);
+        return this;
+      }
+    }
+    throw new IllegalArgumentException("Missing prefix from attribute name.");
   }
 
   @Override
@@ -716,7 +729,7 @@ final class ElementImpl implements Element
     Params.isTrue(nameValuePairs.length % 2 == 0, "Missing value for last attribute.");
     for(int i = 0, l = nameValuePairs.length - 1; i < l; i += 2) {
       Params.notNull(nameValuePairs[i + 1], "Attribute value");
-      node.setAttributeNS(namespaceURI, nameValuePairs[i], nameValuePairs[i + 1]);
+      setAttrNS(namespaceURI, nameValuePairs[i], nameValuePairs[i + 1]);
     }
     return this;
   }

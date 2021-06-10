@@ -166,9 +166,13 @@ public class ElementUnitTest extends TestCase
     org.w3c.dom.Element node = document.getDocumentElement();
 
     el.setAttrNS(NS1, "n1:attr", "ns1.value").setAttrNS(NS2, "n2:attr", "ns2.value").setAttr("attr", "value");
-    doc.dump();
 
     assertEquals("ns1.value", node.getAttributeNS(NS1, "attr"));
+    assertEquals("ns2.value", node.getAttributeNS(NS2, "attr"));
+    assertEquals("value", node.getAttribute("attr"));
+    
+    el.setAttrNS(NS1, "attr", "value1");
+    assertEquals("value1", node.getAttributeNS(NS1, "attr"));
     assertEquals("ns2.value", node.getAttributeNS(NS2, "attr"));
     assertEquals("value", node.getAttribute("attr"));
   }

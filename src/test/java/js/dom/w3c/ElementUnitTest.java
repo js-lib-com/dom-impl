@@ -155,14 +155,18 @@ public class ElementUnitTest extends TestCase
     assertEquals("value3", node.getAttribute("attr3"));
   }
 
-  public void _testSetAttributeNS()
+  public void testSetAttributeNS()
   {
     Document doc = builder().createXMLNS("root");
     Element el = doc.getRoot();
+    el.setAttr("xmlns:n1", NS1);
+    el.setAttr("xmlns:n2", NS2);
+    
     org.w3c.dom.Document document = Classes.getFieldValue(doc, "doc");
     org.w3c.dom.Element node = document.getDocumentElement();
 
-    el.setAttrNS(NS1, "attr", "ns1.value").setAttrNS(NS2, "attr", "ns2.value").setAttr("attr", "value");
+    el.setAttrNS(NS1, "n1:attr", "ns1.value").setAttrNS(NS2, "n2:attr", "ns2.value").setAttr("attr", "value");
+    doc.dump();
 
     assertEquals("ns1.value", node.getAttributeNS(NS1, "attr"));
     assertEquals("ns2.value", node.getAttributeNS(NS2, "attr"));

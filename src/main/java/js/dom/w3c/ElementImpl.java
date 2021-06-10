@@ -749,7 +749,7 @@ final class ElementImpl implements Element
   private static final String XML_ROOT_END = "</fragment>";
 
   @Override
-  public Element setRichText(String richText) throws IOException, SAXException
+  public Element setRichText(String richText) throws SAXException
   {
     try {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -766,6 +766,9 @@ final class ElementImpl implements Element
     }
     catch(ParserConfigurationException e) {
       throw new SAXException(e.getMessage());
+    }
+    catch(IOException e) {
+      throw new BugError("IO exception on string reader.");
     }
     return this;
   }

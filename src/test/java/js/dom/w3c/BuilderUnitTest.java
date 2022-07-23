@@ -25,7 +25,6 @@ import org.xml.sax.SAXParseException;
 
 import js.dom.Document;
 import js.dom.DocumentBuilder;
-import js.dom.w3c.DocumentBuilderImpl;
 import js.util.Classes;
 import js.util.Strings;
 import junit.framework.TestCase;

@@ -3,8 +3,6 @@ package js.dom.w3c;
 import java.util.HashMap;
 import java.util.Map;
 
-import js.dom.w3c.Resources;
-
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 

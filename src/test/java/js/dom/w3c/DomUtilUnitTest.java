@@ -4,8 +4,6 @@ import org.xml.sax.SAXException;
 
 import js.dom.Document;
 import js.dom.EList;
-import js.dom.w3c.DocumentBuilderImpl;
-import js.dom.w3c.DomUtil;
 import junit.framework.TestCase;
 
 public class DomUtilUnitTest extends TestCase {

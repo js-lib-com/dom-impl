@@ -15,7 +15,6 @@ import js.dom.DocumentBuilder;
 import js.dom.EList;
 import js.dom.Element;
 import js.dom.NamespaceContext;
-import js.dom.w3c.DocumentBuilderImpl;
 import js.io.WriterOutputStream;
 import js.util.Classes;
 import junit.framework.TestCase;

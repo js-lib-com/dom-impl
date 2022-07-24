@@ -16,6 +16,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.junit.Ignore;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
@@ -26,6 +27,7 @@ import js.dom.w3c.DocumentBuilderImpl;
 import js.util.Classes;
 import junit.framework.TestCase;
 
+@Ignore
 public class SerializerBenchmark extends TestCase {
 	private static final int TEST_COUNT = 10000;
 

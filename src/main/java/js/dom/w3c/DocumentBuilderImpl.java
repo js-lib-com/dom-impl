@@ -27,11 +27,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import com.jslib.api.log.Log;
+import com.jslib.api.log.LogFactory;
+
 import js.dom.Document;
 import js.dom.DocumentBuilder;
 import js.lang.BugError;
-import js.log.Log;
-import js.log.LogFactory;
 
 /**
  * Document object builder. Supply factory methods for documents creation, parsing from string and loading from various

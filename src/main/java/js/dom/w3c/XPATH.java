@@ -8,9 +8,10 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jslib.api.log.Log;
+import com.jslib.api.log.LogFactory;
+
 import js.dom.NamespaceContext;
-import js.log.Log;
-import js.log.LogFactory;
 import js.util.Strings;
 
 /**

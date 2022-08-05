@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,9 +14,9 @@ import java.io.StringWriter;
 import org.junit.Before;
 import org.junit.Test;
 
-import js.dom.Document;
-import js.dom.DocumentBuilder;
-import js.util.Strings;
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.DocumentBuilder;
+import com.jslib.util.Strings;
 
 public class SerializerUnitTest
 {

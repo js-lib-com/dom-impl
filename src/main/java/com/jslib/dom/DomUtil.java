@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +8,12 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import js.dom.Document;
-import js.dom.EList;
-import js.lang.BugError;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.EList;
+import com.jslib.lang.BugError;
 
 /**
  * DOM utility class.

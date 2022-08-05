@@ -1,8 +1,8 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
-import static js.util.Params.isFalse;
-import static js.util.Params.notNull;
-import static js.util.Params.notNullOrEmpty;
+import static com.jslib.util.Params.isFalse;
+import static com.jslib.util.Params.notNull;
+import static com.jslib.util.Params.notNullOrEmpty;
 
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -27,12 +27,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.DocumentBuilder;
 import com.jslib.api.log.Log;
 import com.jslib.api.log.LogFactory;
-
-import js.dom.Document;
-import js.dom.DocumentBuilder;
-import js.lang.BugError;
+import com.jslib.lang.BugError;
 
 /**
  * Document object builder. Supply factory methods for documents creation, parsing from string and loading from various

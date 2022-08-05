@@ -1,4 +1,4 @@
-package js.dom.w3c.it;
+package com.jslib.dom.it;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,9 +22,10 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
-import js.dom.Document;
-import js.dom.w3c.DocumentBuilderImpl;
-import js.util.Classes;
+import com.jslib.api.dom.Document;
+import com.jslib.dom.DocumentBuilderImpl;
+import com.jslib.util.Classes;
+
 import junit.framework.TestCase;
 
 @Ignore

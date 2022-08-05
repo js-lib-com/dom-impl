@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -11,12 +11,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import js.dom.Document;
-import js.dom.EList;
-import js.dom.Element;
-import js.dom.NamespaceContext;
-import js.lang.BugError;
-import js.util.Params;
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.EList;
+import com.jslib.api.dom.Element;
+import com.jslib.api.dom.NamespaceContext;
+import com.jslib.lang.BugError;
+import com.jslib.util.Params;
 
 /**
  * Master document implementation.

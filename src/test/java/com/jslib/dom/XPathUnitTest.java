@@ -1,14 +1,15 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import javax.xml.xpath.XPathException;
 
 import org.xml.sax.SAXException;
 
-import js.dom.Document;
-import js.dom.DocumentBuilder;
-import js.dom.EList;
-import js.dom.Element;
-import js.dom.NamespaceContext;
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.DocumentBuilder;
+import com.jslib.api.dom.EList;
+import com.jslib.api.dom.Element;
+import com.jslib.api.dom.NamespaceContext;
+
 import junit.framework.TestCase;
 
 public class XPathUnitTest extends TestCase

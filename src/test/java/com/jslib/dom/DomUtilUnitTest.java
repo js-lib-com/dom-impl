@@ -1,9 +1,10 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import org.xml.sax.SAXException;
 
-import js.dom.Document;
-import js.dom.EList;
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.EList;
+
 import junit.framework.TestCase;
 
 public class DomUtilUnitTest extends TestCase {

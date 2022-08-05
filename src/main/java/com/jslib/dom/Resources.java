@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import java.io.InputStream;
 import java.net.URL;

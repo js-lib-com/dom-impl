@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -8,11 +8,10 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.jslib.api.dom.NamespaceContext;
 import com.jslib.api.log.Log;
 import com.jslib.api.log.LogFactory;
-
-import js.dom.NamespaceContext;
-import js.util.Strings;
+import com.jslib.util.Strings;
 
 /**
  * Constant XPath expressions used internally by DOM package.

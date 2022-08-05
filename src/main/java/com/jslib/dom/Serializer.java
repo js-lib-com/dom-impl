@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import js.util.Strings;
+import com.jslib.util.Strings;
 
 /**
  * Serialize document on external created writer. Serializer accepts both HTML and XML documents for which write the

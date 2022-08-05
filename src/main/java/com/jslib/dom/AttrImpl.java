@@ -1,7 +1,7 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
-import js.dom.Attr;
-import js.util.Strings;
+import com.jslib.api.dom.Attr;
+import com.jslib.util.Strings;
 
 /**
  * Immutable element attribute implementation.

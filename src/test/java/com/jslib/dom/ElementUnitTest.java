@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,12 +9,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import js.dom.Document;
-import js.dom.DocumentBuilder;
-import js.dom.EList;
-import js.dom.Element;
-import js.dom.NamespaceContext;
-import js.util.Classes;
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.DocumentBuilder;
+import com.jslib.api.dom.EList;
+import com.jslib.api.dom.Element;
+import com.jslib.api.dom.NamespaceContext;
+import com.jslib.util.Classes;
+
 import junit.framework.TestCase;
 
 public class ElementUnitTest extends TestCase

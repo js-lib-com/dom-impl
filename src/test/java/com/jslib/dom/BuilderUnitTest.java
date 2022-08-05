@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,10 +23,11 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import js.dom.Document;
-import js.dom.DocumentBuilder;
-import js.util.Classes;
-import js.util.Strings;
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.DocumentBuilder;
+import com.jslib.util.Classes;
+import com.jslib.util.Strings;
+
 import junit.framework.TestCase;
 
 public class BuilderUnitTest

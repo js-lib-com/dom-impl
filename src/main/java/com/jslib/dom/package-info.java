@@ -3,5 +3,5 @@
  *
  * @author Iulian Rotaru
  */
-package js.dom.w3c;
+package com.jslib.dom;
 

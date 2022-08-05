@@ -1,4 +1,4 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,15 +20,15 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import js.dom.Attr;
-import js.dom.ChildNode;
-import js.dom.Document;
-import js.dom.EList;
-import js.dom.Element;
-import js.dom.NamespaceContext;
-import js.lang.BugError;
-import js.util.Params;
-import js.util.Strings;
+import com.jslib.api.dom.Attr;
+import com.jslib.api.dom.ChildNode;
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.EList;
+import com.jslib.api.dom.Element;
+import com.jslib.api.dom.NamespaceContext;
+import com.jslib.lang.BugError;
+import com.jslib.util.Params;
+import com.jslib.util.Strings;
 
 /**
  * Document element implementation.

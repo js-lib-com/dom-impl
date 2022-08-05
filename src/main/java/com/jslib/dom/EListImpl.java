@@ -1,16 +1,16 @@
-package js.dom.w3c;
+package com.jslib.dom;
 
 import java.util.Iterator;
 
-import js.dom.Document;
-import js.dom.EList;
-import js.dom.Element;
-import js.lang.BugError;
-import js.util.Classes;
-import js.util.Params;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.jslib.api.dom.Document;
+import com.jslib.api.dom.EList;
+import com.jslib.api.dom.Element;
+import com.jslib.lang.BugError;
+import com.jslib.util.Classes;
+import com.jslib.util.Params;
 
 /**
  * List of elements implementation.

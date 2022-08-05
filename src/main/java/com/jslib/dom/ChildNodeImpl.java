@@ -1,9 +1,9 @@
-package js.dom.w3c;
-
-import js.dom.ChildNode;
-import js.dom.Element;
+package com.jslib.dom;
 
 import org.w3c.dom.Node;
+
+import com.jslib.api.dom.ChildNode;
+import com.jslib.api.dom.Element;
 
 public class ChildNodeImpl implements ChildNode {
 	private final DocumentImpl doc;
